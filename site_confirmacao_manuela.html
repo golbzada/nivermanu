@@ -360,7 +360,7 @@ body.overlay-active{
 }
 
 /* ============================================================
-   REPRODUTOR DE MÚSICA FLUTUANTE COM CONTROLE DE VOLUME
+   REPRODUTOR DE MÚSICA FLUTUANTE
    ============================================================ */
 .music-player-container{
   position: fixed;
@@ -392,6 +392,17 @@ body.overlay-active{
 .music-capsule.expanded{
   max-width: 310px;
   padding: 4px 12px 4px 4px;
+}
+
+/* No mobile: oculta a barra de volume e deixa a cápsula super compacta */
+@media (max-width: 680px){
+  .volume-control-wrap{
+    display: none !important;
+  }
+  .music-capsule.expanded{
+    max-width: 175px;
+    padding: 4px 8px 4px 4px;
+  }
 }
 
 /* Botão do Disquinho (Trigger) */
@@ -538,7 +549,7 @@ body.overlay-active{
   fill: currentColor;
 }
 
-/* Controle de Volume Minimalista */
+/* Controle de Volume Minimalista (Desktop) */
 .volume-control-wrap{
   display: flex;
   align-items: center;
@@ -1973,7 +1984,7 @@ a{ color:inherit; text-decoration:none; }
 
 </div>
 
-<!-- ============ REPRODUTOR DE MÚSICA FLUTUANTE COM CONTROLES E VOLUME ============ -->
+<!-- ============ REPRODUTOR DE MÚSICA FLUTUANTE COM CONTROLES ============ -->
 <div class="music-player-container">
   <div class="music-capsule" id="musicCapsule">
     
@@ -1987,7 +1998,7 @@ a{ color:inherit; text-decoration:none; }
       </div>
     </div>
 
-    <!-- Painel de Controles (Voltar, Play/Pause, Avançar, Volume) -->
+    <!-- Painel de Controles (Voltar, Play/Pause, Avançar, Volume no PC) -->
     <div class="music-controls-panel" id="musicControlsPanel">
       
       <!-- Voltar Faixa -->
@@ -2006,7 +2017,7 @@ a{ color:inherit; text-decoration:none; }
         <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
       </button>
 
-      <!-- Controle de Volume -->
+      <!-- Controle de Volume (Exibido apenas em Desktop/PC) -->
       <div class="volume-control-wrap" onclick="event.stopPropagation()">
         <button type="button" class="music-ctrl-btn volume-btn" id="volumeBtn" onclick="toggleMute(event)" title="Silenciar / Ativar Volume">
           <svg id="volIconHigh" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
@@ -2020,9 +2031,7 @@ a{ color:inherit; text-decoration:none; }
 
   </div>
 
-  <audio id="bgAudio" preload="auto">
-    <source src="musica01.mp3" type="audio/mpeg">
-  </audio>
+  <audio id="bgAudio" src="musica01.mp3" preload="auto"></audio>
 </div>
 
 <canvas id="confetti-canvas"></canvas>
@@ -2390,12 +2399,14 @@ if(typeof window.supabase !== 'undefined' && SUPABASE_URL && SUPABASE_ANON_KEY){
 }
 
 /* ============================================================
-   SISTEMA DE PLAYLIST & CONTROLES SUTIS COM VOLUME
+   SISTEMA DE PLAYLIST (musica01 até musica05) & CONTROLES SUTIS
    ============================================================ */
 const PLAYLIST = [
   { id: 0, title: "Trilha 1", src: "musica01.mp3" },
   { id: 1, title: "Trilha 2", src: "musica02.mp3" },
-  { id: 2, title: "Trilha 3", src: "musica03.mp3" }
+  { id: 2, title: "Trilha 3", src: "musica03.mp3" },
+  { id: 3, title: "Trilha 4", src: "musica04.mp3" },
+  { id: 4, title: "Trilha 5", src: "musica05.mp3" }
 ];
 
 let currentTrackIndex = 0;
@@ -2479,7 +2490,9 @@ function loadTrack(index, autoPlay = true){
   
   currentTrackIndex = index;
   const currentVol = bgAudio ? bgAudio.volume : 0.55;
-  bgAudio.src = PLAYLIST[currentTrackIndex].src;
+  
+  // Cache buster com timestamp garante que o navegador carregue sempre o arquivo novo
+  bgAudio.src = PLAYLIST[currentTrackIndex].src + '?v=' + Date.now();
   bgAudio.load();
   bgAudio.volume = currentVol;
   
