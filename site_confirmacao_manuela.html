@@ -1536,14 +1536,106 @@ a{ color:inherit; text-decoration:none; }
   filter: drop-shadow(0 6px 12px rgba(120,60,80,0.12));
 }
 
-.candle-flame{
-  animation: flameFlicker 1.8s ease-in-out infinite alternate;
-  transform-origin: 59px 28px;
+/* ============ ANIMAÇÃO ULTRA-REALISTA DA CHAMA DA VELA ============ */
+.candle-flame-system{
+  transform-origin: 60px 27px;
+  pointer-events: none;
 }
-@keyframes flameFlicker{
-  0%{ transform: scale(1) rotate(-2deg); filter: drop-shadow(0 0 4px rgba(224,168,63,0.7)); }
-  50%{ transform: scale(1.1, 0.95) rotate(2deg); filter: drop-shadow(0 0 8px rgba(242,201,138,0.9)); }
-  100%{ transform: scale(0.95, 1.05) rotate(-1deg); filter: drop-shadow(0 0 5px rgba(224,168,63,0.8)); }
+
+/* Halo de luz quente que pulsa e ilumina o topo do bolo */
+.flame-halo{
+  transform-origin: 60px 18px;
+  animation: haloPulse 2.8s ease-in-out infinite alternate;
+}
+
+@keyframes haloPulse{
+  0%{ transform: scale(0.9); opacity: 0.55; }
+  35%{ transform: scale(1.08); opacity: 0.85; }
+  70%{ transform: scale(0.96); opacity: 0.65; }
+  100%{ transform: scale(1.18); opacity: 0.95; }
+}
+
+/* Movimento orgânico da chama (dança e oscilação realista) */
+.flame-motion-wrap{
+  transform-origin: 60px 27px;
+  animation: flameOrganicDance 3.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  filter: drop-shadow(0 0 3.5px rgba(255, 175, 40, 0.8))
+          drop-shadow(0 0 8px rgba(255, 110, 30, 0.45));
+}
+
+@keyframes flameOrganicDance{
+  0%{
+    transform: rotate(0deg) skewX(0deg) scale(1, 1);
+  }
+  12%{
+    transform: rotate(2.8deg) skewX(2deg) scale(0.96, 1.05);
+  }
+  24%{
+    transform: rotate(-1.8deg) skewX(-1.5deg) scale(1.02, 0.97);
+  }
+  38%{
+    transform: rotate(3.6deg) skewX(3deg) scale(0.94, 1.08);
+  }
+  52%{
+    transform: rotate(-3deg) skewX(-2.5deg) scale(1.03, 0.96);
+  }
+  68%{
+    transform: rotate(1.8deg) skewX(1.2deg) scale(0.98, 1.03);
+  }
+  82%{
+    transform: rotate(-3.8deg) skewX(-3.2deg) scale(0.95, 1.07);
+  }
+  92%{
+    transform: rotate(1.2deg) skewX(1deg) scale(1.02, 0.98);
+  }
+  100%{
+    transform: rotate(0deg) skewX(0deg) scale(1, 1);
+  }
+}
+
+/* Micro-tremor natural da chama externa */
+.flame-outer{
+  transform-origin: 60px 27px;
+  animation: flameFlickerOuter 0.85s ease-in-out infinite alternate;
+}
+
+@keyframes flameFlickerOuter{
+  0%{ transform: scale(1, 1); opacity: 0.95; }
+  25%{ transform: scale(0.97, 1.03); opacity: 1; }
+  60%{ transform: scale(1.03, 0.96); opacity: 0.92; }
+  100%{ transform: scale(0.98, 1.04); opacity: 0.98; }
+}
+
+/* Núcleo interno com respiração e calor intenso */
+.flame-inner{
+  transform-origin: 60px 26px;
+  animation: flameInnerHeat 1.3s ease-in-out infinite alternate;
+}
+
+@keyframes flameInnerHeat{
+  0%{ transform: scale(1, 1) translateY(0); opacity: 0.95; }
+  50%{ transform: scale(1.06, 0.95) translateY(-0.3px); opacity: 1; }
+  100%{ transform: scale(0.94, 1.05) translateY(0.2px); opacity: 0.9; }
+}
+
+/* Faíscas sutis que dançam e sobem */
+.flame-spark{
+  animation: sparkRise 2.4s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+}
+.flame-spark.s-1{
+  animation-duration: 2.2s;
+  animation-delay: 0.3s;
+}
+.flame-spark.s-2{
+  animation-duration: 2.7s;
+  animation-delay: 1.5s;
+}
+
+@keyframes sparkRise{
+  0%{ transform: translate(0, 0) scale(1); opacity: 0; }
+  20%{ opacity: 0.9; }
+  80%{ opacity: 0.35; }
+  100%{ transform: translate(-1.5px, -11px) scale(0.2); opacity: 0; }
 }
 
 .footer-bow-divider{
@@ -1886,7 +1978,7 @@ a{ color:inherit; text-decoration:none; }
           <div class="env-seam-ornament top">
             <div class="dot"></div>
             <div class="dot"></div>
-            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 0Z"/></svg>
+            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
             <div class="dot"></div>
             <div class="dot"></div>
           </div>
@@ -1894,7 +1986,7 @@ a{ color:inherit; text-decoration:none; }
           <div class="env-seam-ornament bottom">
             <div class="dot"></div>
             <div class="dot"></div>
-            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 0Z"/></svg>
+            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
             <div class="dot"></div>
             <div class="dot"></div>
           </div>
@@ -1936,7 +2028,7 @@ a{ color:inherit; text-decoration:none; }
           <div class="env-seam-ornament top">
             <div class="dot"></div>
             <div class="dot"></div>
-            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 0Z"/></svg>
+            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
             <div class="dot"></div>
             <div class="dot"></div>
           </div>
@@ -1944,7 +2036,7 @@ a{ color:inherit; text-decoration:none; }
           <div class="env-seam-ornament bottom">
             <div class="dot"></div>
             <div class="dot"></div>
-            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 0Z"/></svg>
+            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
             <div class="dot"></div>
             <div class="dot"></div>
           </div>
@@ -2341,26 +2433,84 @@ a{ color:inherit; text-decoration:none; }
     </section>
 
     <!-- ============================================================
-         RODAPÉ FINAL
+         RODAPÉ FINAL COM VELA ANIMADA ULTRA-REALISTA
          ============================================================ -->
     <footer class="footer reveal-on-scroll" id="rodape">
       <div class="sparkle-bg"></div>
       <div class="cake-grid-bg"></div>
 
+      <!-- Ilustração Encantadora do Bolo com Vela Realista -->
       <svg class="cake-illustration" viewBox="0 0 120 100">
+        <defs>
+          <!-- Gradiente da Chama Externa (Degradê quente de fogo) -->
+          <radialGradient id="flameOuterGrad" cx="50%" cy="80%" r="65%" fx="50%" fy="90%">
+            <stop offset="0%" stop-color="#fff8d6"/>
+            <stop offset="25%" stop-color="#ffb834"/>
+            <stop offset="60%" stop-color="#f27d26"/>
+            <stop offset="100%" stop-color="#d9381e"/>
+          </radialGradient>
+          
+          <!-- Gradiente do Núcleo da Chama (Intenso e Brilhante) -->
+          <radialGradient id="flameInnerGrad" cx="50%" cy="75%" r="60%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="45%" stop-color="#fffce0"/>
+            <stop offset="85%" stop-color="#ffe066"/>
+            <stop offset="100%" stop-color="#ffb338"/>
+          </radialGradient>
+          
+          <!-- Halo de Luz Quente e Suave ao Redor da Vela -->
+          <radialGradient id="candleHalo" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(255, 215, 120, 0.55)"/>
+            <stop offset="50%" stop-color="rgba(255, 160, 60, 0.22)"/>
+            <stop offset="100%" stop-color="rgba(255, 140, 40, 0)"/>
+          </radialGradient>
+        </defs>
+
+        <!-- Prato do Bolo -->
         <ellipse cx="60" cy="92" rx="46" ry="6" fill="#e9d8c4"/>
+        
+        <!-- Camada Principal do Bolo -->
         <rect x="20" y="55" width="80" height="35" rx="8" fill="#fdf8f0"/>
+        
+        <!-- Cobertura Ondulada de Glacê -->
         <path d="M20 58 q10 -9 20 0 q10 -9 20 0 q10 -9 20 0 q10 -9 20 0 v6 h-80 Z" fill="#ffffff"/>
         <rect x="20" y="55" width="80" height="35" rx="8" fill="none" stroke="#f0e2cd" stroke-width="1"/>
+        
+        <!-- Confeitos Dourados e Rosas -->
         <circle cx="33" cy="61" r="2.2" fill="#e2c98a"/>
         <circle cx="60" cy="59" r="2.2" fill="#eeaebb"/>
         <circle cx="87" cy="61" r="2.2" fill="#e2c98a"/>
         
+        <!-- Vela Rosa Pastel com Detalhes -->
         <rect x="57" y="32" width="6" height="24" rx="2" fill="#f6c8d2"/>
         <rect x="57" y="32" width="6" height="24" rx="2" fill="none" stroke="#eeaebb" stroke-width="0.6"/>
-        <g class="candle-flame">
-          <path d="M60 32 C57 27 63 22 60 16" stroke="#e0a83f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-          <path d="M60 30 C58.5 26.5 61.5 24 60 19" stroke="#fce29d" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+        
+        <!-- Pavio Escuro Realista -->
+        <line x1="60" y1="32" x2="60" y2="27" stroke="#4a333c" stroke-width="1.3" stroke-linecap="round"/>
+
+        <!-- ============ SISTEMA DE FOGO VIVO E MOVIMENTO REALISTA ============ -->
+        <g class="candle-flame-system">
+          <!-- Halo de Luz Pulsante -->
+          <circle cx="60" cy="18" r="18" fill="url(#candleHalo)" class="flame-halo" />
+          
+          <!-- Chama com Movimento Físico Orgânico -->
+          <g class="flame-motion-wrap">
+            <!-- Camada Externa de Fogo Âmbar/Dourado -->
+            <path class="flame-outer" d="M 60 27 C 54.5 26 52.5 20.5 56.5 14.5 C 58.8 11 60 7 60 4.5 C 60 7 61.2 11 63.5 14.5 C 67.5 20.5 65.5 26 60 27 Z" fill="url(#flameOuterGrad)"/>
+            
+            <!-- Núcleo Interno Branco-Amarelado -->
+            <path class="flame-inner" d="M 60 26 C 56.8 25 55.5 21.5 57.8 16.5 C 59.2 13.5 60 10 60 8.5 C 60 10 60.8 13.5 62.2 16.5 C 64.5 21.5 63.2 25 60 26 Z" fill="url(#flameInnerGrad)"/>
+            
+            <!-- Base Azulada Característica de Chama Real -->
+            <ellipse cx="60" cy="26.8" rx="2.2" ry="1.1" fill="#5b9bd5" opacity="0.8"/>
+            
+            <!-- Centro Incandescente Extra Brilhante -->
+            <ellipse cx="60" cy="22.5" rx="1.3" ry="2.6" fill="#ffffff" opacity="0.95"/>
+          </g>
+          
+          <!-- Micro-faíscas Térmicas que sobem -->
+          <circle cx="59.5" cy="10" r="0.75" fill="#ffe699" class="flame-spark s-1"/>
+          <circle cx="60.5" cy="6" r="0.55" fill="#fff2cc" class="flame-spark s-2"/>
         </g>
       </svg>
 
