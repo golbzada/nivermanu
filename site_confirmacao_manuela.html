@@ -7,6 +7,15 @@
 <meta name="description" content="Convite oficial para o aniversário de 19 anos da Manuela. Festa Fantasia, detalhes, confirmação de presença e mural de recados.">
 <meta name="theme-color" content="#f0d9de">
 
+<!-- Favicon Oficial com o Medalhão Dourado M (SVG, PNG, ICO) -->
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="shortcut icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="favicon.png">
+
+<!-- Supabase JS Client Oficial -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Parisienne&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Jost:wght@300;400;500;600;700&display=swap');
 
@@ -48,6 +57,304 @@ body{
   position: relative;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+body.overlay-active{
+  overflow: hidden !important;
+  height: 100vh !important;
+}
+
+/* ============================================================
+   TELA DE ABERTURA (OVERLAY CONVITE REALÍSTICO COM 3D SPLIT)
+   ============================================================ */
+.envelope-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: radial-gradient(120% 120% at 50% 30%, rgba(247,227,230,0.96) 0%, rgba(237,210,215,0.98) 60%, #e2bfc7 100%);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: hidden;
+  transition: opacity 0.85s cubic-bezier(0.65, 0, 0.35, 1), visibility 0.85s;
+}
+
+.envelope-overlay.opening{
+  opacity: 0;
+  pointer-events: none;
+}
+
+.env-ambient-glow{
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+}
+.env-glow-circle{
+  position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.6;
+  animation: floatAmbient 12s ease-in-out infinite alternate;
+}
+.env-glow-circle.g1{ width: 340px; height: 340px; background: #fce1e8; top: 10%; left: 15%; }
+.env-glow-circle.g2{ width: 380px; height: 380px; background: #faecc9; bottom: 10%; right: 15%; animation-delay: -6s; }
+
+/* Palco central do convite fechado */
+.env-stage{
+  position: relative;
+  width: min(88vw, 420px);
+  height: min(78vh, 560px);
+  perspective: 1400px;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 20px;
+  box-shadow: 0 35px 80px -15px rgba(120,60,80,0.38), 0 0 0 1px rgba(215,185,140,0.4);
+  background: #fbf5ef;
+}
+
+.env-doors-wrap{
+  position: absolute;
+  inset: 0;
+  display: flex;
+  transform-style: preserve-3d;
+}
+
+/* Duas portas/abas 3D do convite */
+.env-door{
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 50%;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  background:
+    radial-gradient(130% 90% at 50% 15%, #f9d8e0 0%, #fae2e6 30%, #fdf2ec 70%, #f7dbe1 100%);
+  transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.85s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.env-door-left{
+  left: 0;
+  transform-origin: left center;
+  border-radius: 20px 0 0 20px;
+  border-right: 1px solid rgba(215, 185, 140, 0.6);
+  box-shadow: inset -2px 0 6px rgba(182, 137, 63, 0.08);
+}
+
+.env-door-right{
+  right: 0;
+  transform-origin: right center;
+  border-radius: 0 20px 20px 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: inset 2px 0 6px rgba(255, 255, 255, 0.8);
+}
+
+.env-stage.opening .env-door-left{
+  transform: rotateY(-115deg) scale(0.96);
+  opacity: 0;
+}
+.env-stage.opening .env-door-right{
+  transform: rotateY(115deg) scale(0.96);
+  opacity: 0;
+}
+
+/* Conteúdo interior espelhado para formar o cartão contínuo */
+.env-door-inner{
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 200%;
+  height: 100%;
+}
+.env-door-left .env-door-inner{ left: 0; }
+.env-door-right .env-door-inner{ left: -100%; }
+
+/* Moldura fina dupla (Linha sólida externa + Linha tracejada interna) */
+.env-card-border-outer{
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(215, 185, 140, 0.75);
+  border-radius: 14px;
+  pointer-events: none;
+}
+.env-card-border-inner{
+  position: absolute;
+  inset: 16px;
+  border: 1px dashed rgba(215, 185, 140, 0.65);
+  border-radius: 11px;
+  pointer-events: none;
+}
+
+/* Cantoneiras decorativas nos 4 cantos */
+.env-corner-flourish{
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  pointer-events: none;
+}
+.env-corner-flourish.tl{ top: 20px; left: 20px; }
+.env-corner-flourish.tr{ top: 20px; right: 20px; transform: scaleX(-1); }
+.env-corner-flourish.bl{ bottom: 20px; left: 20px; transform: scaleY(-1); }
+.env-corner-flourish.br{ bottom: 20px; right: 20px; transform: scale(-1); }
+
+/* Detalhes de brilhos e pontos sutis espalhados */
+.env-card-sparkles{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1.5px 1.5px at 18% 22%, rgba(215, 185, 140, 0.8) 0, transparent 70%),
+    radial-gradient(1.5px 1.5px at 82% 22%, rgba(215, 185, 140, 0.8) 0, transparent 70%),
+    radial-gradient(2px 2px at 82% 28%, rgba(224, 135, 159, 0.6) 0, transparent 70%),
+    radial-gradient(1.5px 1.5px at 16% 32%, rgba(224, 135, 159, 0.5) 0, transparent 70%),
+    radial-gradient(1.8px 1.8px at 8% 74%, rgba(215, 185, 140, 0.75) 0, transparent 70%),
+    radial-gradient(1.5px 1.5px at 15% 85%, rgba(215, 185, 140, 0.7) 0, transparent 70%),
+    radial-gradient(1.8px 1.8px at 86% 85%, rgba(215, 185, 140, 0.75) 0, transparent 70%),
+    radial-gradient(1.5px 1.5px at 73% 90%, rgba(224, 135, 159, 0.6) 0, transparent 70%),
+    radial-gradient(2px 2px at 25% 91%, rgba(215, 185, 140, 0.5) 0, transparent 70%);
+}
+
+/* Detalhe do eixo central com estrela e pontos verticais */
+.env-seam-ornament{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+  z-index: 5;
+}
+.env-seam-ornament.top{ top: 26%; }
+.env-seam-ornament.bottom{ bottom: 20%; }
+
+.env-seam-ornament .dot{
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #d5b88c;
+}
+.env-seam-ornament .star{
+  width: 9px;
+  height: 9px;
+  color: #cda25b;
+}
+
+/* ============ MEDALHÃO DOURADO COM MONOGRAMA "M" & BRILHO ============ */
+.invite-seal-wrap{
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 15;
+  pointer-events: none;
+  animation: sealBreathe 3s ease-in-out infinite;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+@keyframes sealBreathe{
+  0%, 100%{ transform: translate(-50%, -50%) scale(1); }
+  50%{ transform: translate(-50%, -50%) scale(1.04); }
+}
+
+.invite-seal-disc{
+  position: relative;
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  overflow: hidden;
+  filter: drop-shadow(0 6px 14px rgba(135, 95, 45, 0.38));
+}
+
+.invite-seal{
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Efeito de feixe de brilho deslizante (Sheen Sweep) */
+.seal-sheen{
+  position: absolute;
+  top: -50%;
+  left: -80%;
+  width: 55%;
+  height: 200%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.65) 50%, transparent 100%);
+  transform: rotate(25deg);
+  pointer-events: none;
+  animation: sealSheenSweep 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes sealSheenSweep{
+  0%, 55%{ left: -80%; opacity: 0; }
+  58%{ opacity: 1; }
+  80%{ left: 150%; opacity: 1; }
+  85%, 100%{ left: 150%; opacity: 0; }
+}
+
+/* ============ TEXTO EM ARCO PERFEITO ESCULPIDO COM PROFUNDIDADE E BRILHO SUAVE ============ */
+.env-arc-hint-wrap{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -108%);
+  width: 260px;
+  height: 90px;
+  z-index: 14;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.env-arc-svg{
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.sculpt-stroke{
+  stroke-dasharray: 180;
+  stroke-dashoffset: 180;
+  animation: carveTextAlongArc 1.8s cubic-bezier(0.4, 0, 0.2, 1) 2.2s forwards;
+}
+
+@keyframes carveTextAlongArc{
+  0%{ stroke-dashoffset: 180; }
+  100%{ stroke-dashoffset: 0; }
+}
+
+.arc-carved-text{
+  font-family: 'Parisienne', cursive;
+  font-size: 21px;
+  fill: var(--rose-deep);
+  paint-order: stroke fill;
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 0.5px;
+  letter-spacing: 0.8px;
+  opacity: 0;
+  animation:
+    arcTextFadeIn 0.3s ease 2.2s forwards,
+    arcGlowBreathe 3.2s ease-in-out 4.0s infinite;
+}
+
+@keyframes arcTextFadeIn{
+  0%{ opacity: 0; }
+  100%{ opacity: 0.96; }
+}
+
+@keyframes arcGlowBreathe{
+  0%, 100%{
+    filter: drop-shadow(0 -0.8px 0.6px rgba(150, 60, 85, 0.38))
+            drop-shadow(0 1px 1px rgba(255, 255, 255, 0.95))
+            drop-shadow(0 0 0px transparent);
+  }
+  50%{
+    filter: drop-shadow(0 -0.8px 0.6px rgba(150, 60, 85, 0.45))
+            drop-shadow(0 1px 1.2px rgba(255, 255, 255, 1))
+            drop-shadow(0 0 6px rgba(224, 135, 159, 0.72));
+  }
+}
+
+.env-stage.opening .invite-seal-wrap,
+.env-stage.opening .env-arc-hint-wrap{
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
 }
 
 /* Fundo mágico com partículas de luz ambiente */
@@ -249,7 +556,6 @@ a{ color:inherit; text-decoration:none; }
   scroll-margin-top: 68px;
 }
 
-/* Header decorativo de seção unificado */
 .section-banner{
   padding: 34px 24px 24px;
   text-align:center;
@@ -310,7 +616,7 @@ a{ color:inherit; text-decoration:none; }
 .reveal-on-scroll{
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
 .reveal-on-scroll.is-visible{
@@ -412,7 +718,6 @@ a{ color:inherit; text-decoration:none; }
   white-space: nowrap;
 }
 
-/* Faixa Manuela perfeitamente horizontal */
 .ribbon-wrap{
   position:relative;
   margin:14px auto 6px;
@@ -694,7 +999,7 @@ a{ color:inherit; text-decoration:none; }
   background:linear-gradient(160deg, #ffffff 0%, #fbf1f0 100%);
   border:1px solid #f1dde2;
   border-radius: var(--radius-sm);
-  padding:18px 16px 16px;
+  padding:18px 18px 18px;
   box-shadow: var(--shadow-soft);
   display: flex;
   flex-direction: column;
@@ -705,22 +1010,41 @@ a{ color:inherit; text-decoration:none; }
   border-color: var(--blush-deep);
   box-shadow: 0 12px 24px -8px rgba(120,60,80,0.15);
 }
-.mini-card .mini-icon{
-  margin-bottom:8px;
-  color:var(--rose-deep);
-  text-align:center;
-  display: flex; justify-content: center;
+
+.mini-card-header{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed rgba(224,135,159,0.3);
 }
-.mini-card .mini-icon svg{ width:24px; height:24px; }
-.mini-card h4{
-  font-size:12px;
+.mini-card-header .mini-icon{
+  color:var(--rose-deep);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+.mini-card-header .mini-icon svg{
+  width:20px;
+  height:20px;
+  display: block;
+}
+.mini-card-header h4{
+  font-size:12.5px;
   letter-spacing:3px;
   text-transform:uppercase;
   color:var(--gold);
-  margin-bottom:12px;
-  font-weight:600;
-  text-align:center;
+  font-weight:700;
+  margin-bottom: 0;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
 }
+
 .mini-card ul{
   list-style:none;
   font-family:'Cormorant Garamond', serif;
@@ -823,14 +1147,11 @@ a{ color:inherit; text-decoration:none; }
 }
 .detail-text .sub{
   font-family:'Cormorant Garamond', serif;
-  font-size:14.5px;
-  color:var(--ink-soft);
   font-style:italic;
   margin-top:4px;
   line-height:1.45;
 }
 
-/* Botões de Ação de Localização */
 .location-actions{
   display: flex;
   gap: 10px;
@@ -885,7 +1206,6 @@ a{ color:inherit; text-decoration:none; }
   border-color: #a3d9b5;
 }
 
-/* Moldura do Mapa Interativo */
 .map-container-frame{
   position: relative;
   border-radius: var(--radius-sm);
@@ -933,7 +1253,7 @@ a{ color:inherit; text-decoration:none; }
 .footer{
   position:relative;
   text-align:center;
-  padding: 38px 24px 24px;
+  padding: 38px 24px 26px;
   background:linear-gradient(180deg, var(--champagne) 0%, var(--blush) 100%);
   overflow:hidden;
   border-top: 1px solid rgba(241, 221, 226, 0.8);
@@ -941,12 +1261,17 @@ a{ color:inherit; text-decoration:none; }
 .footer-msg{
   font-family:'Cormorant Garamond', serif;
   font-style:italic;
-  font-size: clamp(14.5px, 2.2vw, 16px);
+  font-size: clamp(15px, 2.2vw, 16.5px);
   color:var(--ink);
-  line-height:1.7;
-  max-width:440px;
-  margin:10px auto 0;
+  line-height:1.65;
+  max-width: 480px;
+  margin:12px auto 0;
   position:relative; z-index:2;
+  text-align: justify;
+  text-align-last: center;
+  text-wrap: balance;
+  hyphens: auto;
+  word-spacing: 0.5px;
 }
 .footer-sign{
   margin-top:16px;
@@ -964,7 +1289,6 @@ a{ color:inherit; text-decoration:none; }
   filter: drop-shadow(0 6px 12px rgba(120,60,80,0.12));
 }
 
-/* Animação da chama da vela */
 .candle-flame{
   animation: flameFlicker 1.8s ease-in-out infinite alternate;
   transform-origin: 59px 28px;
@@ -1269,9 +1593,181 @@ a{ color:inherit; text-decoration:none; }
 </head>
 <body>
 
+<!-- ============ TELA DE ABERTURA: CONVITE FECHADO COM 3D SPLIT (EXATO DA IMAGEM) ============ -->
+<div id="envelope-overlay" class="envelope-overlay">
+  <div class="env-ambient-glow">
+    <div class="env-glow-circle g1"></div>
+    <div class="env-glow-circle g2"></div>
+  </div>
+
+  <div class="env-stage" id="envStage" role="button" tabindex="0" aria-label="Toque para abrir o convite de aniversário da Manuela">
+    
+    <div class="env-doors-wrap">
+      <!-- Metade Esquerda da Porta 3D -->
+      <div class="env-door env-door-left">
+        <div class="env-door-inner">
+          <div class="env-card-border-outer"></div>
+          <div class="env-card-border-inner"></div>
+          <div class="env-card-sparkles"></div>
+
+          <!-- Cantoneiras decorativas (Flourishes nos 4 cantos) -->
+          <svg class="env-corner-flourish tl" viewBox="0 0 30 30" fill="none">
+            <path d="M 4 24 C 4 13 13 4 24 4 M 4 4 L 4 14 M 4 4 L 14 4 M 9 9 C 13 6 18 6 21 9 C 24 12 24 17 21 20" stroke="#cfaf7e" stroke-width="1.1" stroke-linecap="round"/>
+            <circle cx="4" cy="4" r="1.5" fill="#cfaf7e"/>
+            <circle cx="12" cy="4" r="0.9" fill="#cfaf7e"/>
+            <circle cx="4" cy="12" r="0.9" fill="#cfaf7e"/>
+          </svg>
+          <svg class="env-corner-flourish tr" viewBox="0 0 30 30" fill="none">
+            <path d="M 4 24 C 4 13 13 4 24 4 M 4 4 L 4 14 M 4 4 L 14 4 M 9 9 C 13 6 18 6 21 9 C 24 12 24 17 21 20" stroke="#cfaf7e" stroke-width="1.1" stroke-linecap="round"/>
+            <circle cx="4" cy="4" r="1.5" fill="#cfaf7e"/>
+            <circle cx="12" cy="4" r="0.9" fill="#cfaf7e"/>
+            <circle cx="4" cy="12" r="0.9" fill="#cfaf7e"/>
+          </svg>
+          <svg class="env-corner-flourish bl" viewBox="0 0 30 30" fill="none">
+            <path d="M 4 24 C 4 13 13 4 24 4 M 4 4 L 4 14 M 4 4 L 14 4 M 9 9 C 13 6 18 6 21 9 C 24 12 24 17 21 20" stroke="#cfaf7e" stroke-width="1.1" stroke-linecap="round"/>
+            <circle cx="4" cy="4" r="1.5" fill="#cfaf7e"/>
+            <circle cx="12" cy="4" r="0.9" fill="#cfaf7e"/>
+            <circle cx="4" cy="12" r="0.9" fill="#cfaf7e"/>
+          </svg>
+          <svg class="env-corner-flourish br" viewBox="0 0 30 30" fill="none">
+            <path d="M 4 24 C 4 13 13 4 24 4 M 4 4 L 4 14 M 4 4 L 14 4 M 9 9 C 13 6 18 6 21 9 C 24 12 24 17 21 20" stroke="#cfaf7e" stroke-width="1.1" stroke-linecap="round"/>
+            <circle cx="4" cy="4" r="1.5" fill="#cfaf7e"/>
+            <circle cx="12" cy="4" r="0.9" fill="#cfaf7e"/>
+            <circle cx="4" cy="12" r="0.9" fill="#cfaf7e"/>
+          </svg>
+
+          <!-- Detalhes do eixo central (Superior e Inferior) -->
+          <div class="env-seam-ornament top">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+
+          <div class="env-seam-ornament bottom">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metade Direita da Porta 3D -->
+      <div class="env-door env-door-right">
+        <div class="env-door-inner">
+          <div class="env-card-border-outer"></div>
+          <div class="env-card-border-inner"></div>
+          <div class="env-card-sparkles"></div>
+
+          <svg class="env-corner-flourish tl" viewBox="0 0 30 30" fill="none">
+            <path d="M 4 24 C 4 13 13 4 24 4 M 4 4 L 4 14 M 4 4 L 14 4 M 9 9 C 13 6 18 6 21 9 C 24 12 24 17 21 20" stroke="#cfaf7e" stroke-width="1.1" stroke-linecap="round"/>
+            <circle cx="4" cy="4" r="1.5" fill="#cfaf7e"/>
+            <circle cx="12" cy="4" r="0.9" fill="#cfaf7e"/>
+            <circle cx="4" cy="12" r="0.9" fill="#cfaf7e"/>
+          </svg>
+          <svg class="env-corner-flourish tr" viewBox="0 0 30 30" fill="none">
+            <path d="M 4 24 C 4 13 13 4 24 4 M 4 4 L 4 14 M 4 4 L 14 4 M 9 9 C 13 6 18 6 21 9 C 24 12 24 17 21 20" stroke="#cfaf7e" stroke-width="1.1" stroke-linecap="round"/>
+            <circle cx="4" cy="4" r="1.5" fill="#cfaf7e"/>
+            <circle cx="12" cy="4" r="0.9" fill="#cfaf7e"/>
+            <circle cx="4" cy="12" r="0.9" fill="#cfaf7e"/>
+          </svg>
+          <svg class="env-corner-flourish bl" viewBox="0 0 30 30" fill="none">
+            <path d="M 4 24 C 4 13 13 4 24 4 M 4 4 L 4 14 M 4 4 L 14 4 M 9 9 C 13 6 18 6 21 9 C 24 12 24 17 21 20" stroke="#cfaf7e" stroke-width="1.1" stroke-linecap="round"/>
+            <circle cx="4" cy="4" r="1.5" fill="#cfaf7e"/>
+            <circle cx="12" cy="4" r="0.9" fill="#cfaf7e"/>
+            <circle cx="4" cy="12" r="0.9" fill="#cfaf7e"/>
+          </svg>
+          <svg class="env-corner-flourish br" viewBox="0 0 30 30" fill="none">
+            <path d="M 4 24 C 4 13 13 4 24 4 M 4 4 L 4 14 M 4 4 L 14 4 M 9 9 C 13 6 18 6 21 9 C 24 12 24 17 21 20" stroke="#cfaf7e" stroke-width="1.1" stroke-linecap="round"/>
+            <circle cx="4" cy="4" r="1.5" fill="#cfaf7e"/>
+            <circle cx="12" cy="4" r="0.9" fill="#cfaf7e"/>
+            <circle cx="4" cy="12" r="0.9" fill="#cfaf7e"/>
+          </svg>
+
+          <div class="env-seam-ornament top">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+
+          <div class="env-seam-ornament bottom">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TEXTO EM ARCO PERFEITO E SIMÉTRICO ESCULPIDO SOBRE O BOTÃO ============ -->
+    <div class="env-arc-hint-wrap" id="envArcHint">
+      <svg class="env-arc-svg" viewBox="0 0 300 90">
+        <defs>
+          <path id="archPath" d="M 88,68 A 75,75 0 0,1 212,68" fill="none" />
+          <mask id="sculptMask">
+            <path d="M 80,72 A 78,78 0 0,1 220,72" fill="none" stroke="#ffffff" stroke-width="44" class="sculpt-stroke" />
+          </mask>
+        </defs>
+
+        <g mask="url(#sculptMask)">
+          <text class="arc-carved-text">
+            <textPath href="#archPath" startOffset="50%" text-anchor="middle">
+              toque para abrir
+            </textPath>
+          </text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- ============ MEDALHÃO DOURADO COM BORDAS PONTILHADAS, MONOGRAMA "M" E BRILHO ANIMADO ============ -->
+    <div class="invite-seal-wrap">
+      <div class="invite-seal-disc">
+        <svg class="invite-seal" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="medallionGold" cx="36%" cy="32%" r="70%">
+              <stop offset="0%" stop-color="#fdf4d1"/>
+              <stop offset="25%" stop-color="#eed18e"/>
+              <stop offset="65%" stop-color="#cca054"/>
+              <stop offset="100%" stop-color="#9a7031"/>
+            </radialGradient>
+            <radialGradient id="beadsGold" cx="40%" cy="35%" r="65%">
+              <stop offset="0%" stop-color="#fff8df"/>
+              <stop offset="60%" stop-color="#d6ab5b"/>
+              <stop offset="100%" stop-color="#8a6125"/>
+            </radialGradient>
+          </defs>
+
+          <circle cx="50" cy="50" r="46" fill="url(#medallionGold)"/>
+          
+          <circle cx="50" cy="50" r="42.5" fill="none" stroke="#68471b" stroke-width="2.2" stroke-dasharray="0.01 5.56" stroke-linecap="round" opacity="0.35"/>
+          <circle cx="50" cy="50" r="42.5" fill="none" stroke="url(#beadsGold)" stroke-width="1.8" stroke-dasharray="0.01 5.56" stroke-linecap="round"/>
+          
+          <circle cx="50" cy="50" r="38" fill="none" stroke="#faecbe" stroke-width="0.8" opacity="0.75"/>
+          <circle cx="50" cy="50" r="37.2" fill="none" stroke="#9d7334" stroke-width="0.6" opacity="0.45"/>
+
+          <ellipse cx="40" cy="36" rx="20" ry="14" fill="#ffffff" opacity="0.18"/>
+
+          <text x="50" y="62" text-anchor="middle" font-family="'Parisienne', cursive" font-size="39"
+                fill="#6a4a22" font-weight="normal" style="paint-order:stroke; stroke:#f8eecf; stroke-width:0.4px;">M</text>
+        </svg>
+
+        <div class="seal-sheen"></div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
 <canvas id="confetti-canvas"></canvas>
 
-<!-- Fundo com iluminação ambiente -->
 <div class="ambient-glow">
   <div class="ambient-circle c1"></div>
   <div class="ambient-circle c2"></div>
@@ -1313,13 +1809,11 @@ a{ color:inherit; text-decoration:none; }
       <div class="hero reveal-on-scroll">
         <div class="sparkle-bg"></div>
         
-        <!-- Estrelas cintilantes -->
         <svg class="hero-sparkle s1" viewBox="0 0 24 24" fill="#c9a867"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
         <svg class="hero-sparkle s2" viewBox="0 0 24 24" fill="#e0879f"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
         <svg class="hero-sparkle s3" viewBox="0 0 24 24" fill="#e0879f"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
         <svg class="hero-sparkle s4" viewBox="0 0 24 24" fill="#c9a867"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
 
-        <!-- Laço Coquette com animação suave -->
         <svg class="coquette-bow" viewBox="0 0 60 40" fill="none">
           <path d="M28 20 C20 10 6 10 6 20 C6 29 20 26 28 20 Z" fill="none" stroke="#c8607e" stroke-width="1.6"/>
           <path d="M28 20 C36 10 50 10 50 20 C50 29 36 26 28 20 Z" fill="none" stroke="#c8607e" stroke-width="1.6"/>
@@ -1366,7 +1860,6 @@ a{ color:inherit; text-decoration:none; }
       </div>
 
       <div class="body-content">
-        <!-- Regras da Festa -->
         <ul class="theme-rules">
           <li class="reveal-on-scroll stagger-1">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
@@ -1382,19 +1875,19 @@ a{ color:inherit; text-decoration:none; }
           </li>
         </ul>
 
-        <!-- Passatempos -->
         <div class="pastimes-card reveal-on-scroll">
           <span class="label">Passatempos</span>
           <p>Jogos eletrônicos; jogos de tabuleiro; brincadeiras; dinâmicas; danças; karaokê; fotos & vídeos; etc.</p>
         </div>
 
-        <!-- Comidas e Bebidas -->
         <div class="two-col">
           <div class="mini-card reveal-on-scroll stagger-1">
-            <div class="mini-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 15h16l-1.5 5h-13L4 15Z"/><path d="M6 15c0-4 2.5-8 6-8s6 4 6 8"/></svg>
+            <div class="mini-card-header">
+              <div class="mini-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 15h16l-1.5 5h-13L4 15Z"/><path d="M6 15c0-4 2.5-8 6-8s6 4 6 8"/></svg>
+              </div>
+              <h4>Comidas</h4>
             </div>
-            <h4>Comidas</h4>
             <ul>
               <li>Cachorro-quente (salgado)</li>
               <li>Brigadeiro (doce)</li>
@@ -1404,10 +1897,12 @@ a{ color:inherit; text-decoration:none; }
           </div>
 
           <div class="mini-card reveal-on-scroll stagger-2">
-            <div class="mini-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3h8l-1 6-1 3v9H10v-9L9 9 8 3Z"/><path d="M7 3h10"/></svg>
+            <div class="mini-card-header">
+              <div class="mini-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3h8l-1 6-1 3v9H10v-9L9 9 8 3Z"/><path d="M7 3h10"/></svg>
+              </div>
+              <h4>Bebidas</h4>
             </div>
-            <h4>Bebidas</h4>
             <ul>
               <li>Refrigerantes</li>
               <li>Caso queira beber álcool, trazer a sua bebida</li>
@@ -1477,11 +1972,8 @@ a{ color:inherit; text-decoration:none; }
       </div>
 
       <div class="body-content">
-        
-        <!-- Vitrine de Detalhes + Mapa Interativo em Grade Responsiva -->
         <div class="location-showcase-grid reveal-on-scroll">
           
-          <!-- Coluna de Informações -->
           <div class="details-column">
             <div class="detail-row">
               <div class="detail-icon">
@@ -1513,7 +2005,8 @@ a{ color:inherit; text-decoration:none; }
                 <div class="label">Local da Festa</div>
                 <div class="value">Minha casa</div>
                 <div class="sub">
-                  Rua Julia Ostanelli Favrin, número 15, Quadra D<br>
+                  Rua Julia Ostanelli Favrin,<br>
+                  Número 15, quadra D<br>
                   Bairro Estância Recreativa San Fernando<br>
                   13278-111, Valinhos - SP
                 </div>
@@ -1521,7 +2014,6 @@ a{ color:inherit; text-decoration:none; }
               <svg class="corner-star" viewBox="0 0 24 24" fill="#c9a867"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
             </div>
 
-            <!-- Botões de Ação para o Local -->
             <div class="location-actions">
               <a href="https://maps.app.goo.gl/zFUp5JCdoqpgYku19" target="_blank" rel="noopener noreferrer" class="loc-btn primary">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.4 7-12a7 7 0 1 0-14 0c0 5.6 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg>
@@ -1534,7 +2026,6 @@ a{ color:inherit; text-decoration:none; }
             </div>
           </div>
 
-          <!-- Coluna do Mapa Interativo -->
           <div class="map-container-frame">
             <iframe 
               src="https://maps.google.com/maps?q=Rua+Julia+Ostanelli+Favrin,+15,+Valinhos+-+SP,+13278-111&t=&z=15&ie=UTF8&iwloc=&output=embed" 
@@ -1588,7 +2079,6 @@ a{ color:inherit; text-decoration:none; }
       <div class="sparkle-bg"></div>
       <div class="cake-grid-bg"></div>
 
-      <!-- Ilustração do Bolo com chama animada -->
       <svg class="cake-illustration" viewBox="0 0 120 100">
         <ellipse cx="60" cy="92" rx="46" ry="6" fill="#e9d8c4"/>
         <rect x="20" y="55" width="80" height="35" rx="8" fill="#fdf8f0"/>
@@ -1598,7 +2088,6 @@ a{ color:inherit; text-decoration:none; }
         <circle cx="60" cy="59" r="2.2" fill="#eeaebb"/>
         <circle cx="87" cy="61" r="2.2" fill="#e2c98a"/>
         
-        <!-- Vela e chama com animação -->
         <rect x="57" y="32" width="6" height="24" rx="2" fill="#f6c8d2"/>
         <rect x="57" y="32" width="6" height="24" rx="2" fill="none" stroke="#eeaebb" stroke-width="0.6"/>
         <g class="candle-flame">
@@ -1607,7 +2096,7 @@ a{ color:inherit; text-decoration:none; }
         </g>
       </svg>
 
-      <p class="footer-msg reveal-on-scroll">Ficarei feliz com a presença de cada um de vocês!<br>Caso não possa ir, sem problemas, quem sabe uma próxima!</p>
+      <p class="footer-msg reveal-on-scroll">Ficarei feliz com a presença de cada um de vocês! Caso não possa ir, sem problemas, quem sabe uma&nbsp;próxima!</p>
       <p class="footer-sign letter-split">com carinho, a aniversariante ✧</p>
 
       <div class="footer-bow-divider">
@@ -1626,6 +2115,72 @@ a{ color:inherit; text-decoration:none; }
 </div>
 
 <script>
+/* ============================================================
+   CONFIGURAÇÃO DO SUPABASE (EM NUVEM EM TEMPO REAL)
+   ============================================================ */
+const SUPABASE_URL = "https://myioouubjegvfaheuezo.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_z0bqPR0jj0hFaKjnwERPMQ_K3UV7SdM";
+
+let supabaseClient = null;
+if(typeof window.supabase !== 'undefined' && SUPABASE_URL && SUPABASE_ANON_KEY){
+  try {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } catch(e) {
+    console.warn("Supabase não inicializado:", e);
+  }
+}
+
+/* ============================================================
+   0. CONTROLE DA TELA DE ABERTURA (OVERLAY CONVITE FECHADO)
+   ============================================================ */
+(function initEnvelopeOverlay(){
+  const overlay = document.getElementById('envelope-overlay');
+  if(!overlay) return;
+
+  const isAlreadyOpened = sessionStorage.getItem('manu-convite-aberto') === 'true';
+  if(isAlreadyOpened){
+    overlay.style.display = 'none';
+    document.body.classList.remove('overlay-active');
+  } else {
+    document.body.classList.add('overlay-active');
+    
+    let isOpening = false;
+    function openInvitation(){
+      if(isOpening) return;
+      isOpening = true;
+      
+      const stage = document.getElementById('envStage');
+      if(stage) stage.classList.add('opening');
+      overlay.classList.add('opening');
+      
+      if(typeof triggerCelebrationConfetti === 'function'){
+        setTimeout(triggerCelebrationConfetti, 350);
+      }
+      
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        document.body.classList.remove('overlay-active');
+        sessionStorage.setItem('manu-convite-aberto', 'true');
+        
+        document.querySelectorAll('.hero .letter-split, .hero.reveal-on-scroll').forEach(el => {
+          el.classList.add('is-visible');
+        });
+      }, 900);
+    }
+    
+    const stage = document.getElementById('envStage');
+    if(stage){
+      stage.addEventListener('click', openInvitation);
+      stage.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openInvitation();
+        }
+      });
+    }
+  }
+})();
+
 /* ============================================================
    1. ANIMAÇÃO DE ABERTURA DE LETRAS (TEXT SPLIT REVEAL)
    ============================================================ */
@@ -1730,7 +2285,6 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// ScrollSpy: atualiza a aba ativa no topo conforme o usuário rola a página
 window.addEventListener('scroll', () => {
   const scrollPos = window.scrollY + 140;
   let currentSection = 'inicio';
@@ -1786,12 +2340,10 @@ function tickCountdown(){
 tickCountdown();
 setInterval(tickCountdown, 1000);
 
-/* ============================================================
-   5. CALENDAR LINKS & COPIAR ENDEREÇO
-   ============================================================ */
+/* ============ 5. CALENDAR LINKS & COPIAR ENDEREÇO ============ */
 const evtTitle = encodeURIComponent('Aniversário de 19 anos da Manuela');
 const evtDetails = encodeURIComponent('Festa Fantasia! Venha comemorar os 19 anos da Manuela.');
-const evtLocation = encodeURIComponent('Rua Julia Ostanelli Favrin, 15, Quadra D, Estância Recreativa San Fernando, Valinhos - SP');
+const evtLocation = encodeURIComponent('Rua Julia Ostanelli Favrin, Número 15, quadra D, Estância Recreativa San Fernando, Valinhos - SP');
 document.getElementById('gcalBtn').href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${evtTitle}&dates=20260912T170000Z/20260912T210000Z&details=${evtDetails}&location=${evtLocation}`;
 document.getElementById('gcalBtn').target = '_blank';
 
@@ -1809,7 +2361,7 @@ document.getElementById('icsBtn').addEventListener('click', function(e){
     'DTEND:20260912T210000Z',
     'SUMMARY:Aniversário de 19 anos da Manuela',
     'DESCRIPTION:Festa Fantasia! Venha comemorar os 19 anos da Manuela.',
-    'LOCATION:Rua Julia Ostanelli Favrin\\, 15\\, Quadra D\\, Valinhos - SP',
+    'LOCATION:Rua Julia Ostanelli Favrin\\, Número 15\\, quadra D\\, Valinhos - SP',
     'STATUS:CONFIRMED',
     'END:VEVENT',
     'END:VCALENDAR'
@@ -1826,7 +2378,7 @@ document.getElementById('icsBtn').addEventListener('click', function(e){
 });
 
 function copyAddress() {
-  const addressText = "Rua Julia Ostanelli Favrin, número 15, Quadra D, Bairro Estância Recreativa San Fernando, 13278-111, Valinhos - SP";
+  const addressText = "Rua Julia Ostanelli Favrin, Número 15, quadra D, Bairro Estância Recreativa San Fernando, 13278-111, Valinhos - SP";
   const btn = document.getElementById('copyAddressBtn');
   const originalHTML = btn.innerHTML;
   
@@ -1856,9 +2408,7 @@ function copyAddress() {
   }
 }
 
-/* ============================================================
-   6. SISTEMA DE CONFETES / BRILHOS (CONFETTI BURST)
-   ============================================================ */
+/* ============ 6. SISTEMA DE CONFETES (CONFETTI BURST) ============ */
 function triggerCelebrationConfetti(){
   const canvas = document.getElementById('confetti-canvas');
   if(!canvas) return;
@@ -1920,32 +2470,104 @@ function triggerCelebrationConfetti(){
 }
 
 /* ============================================================
-   7. ARMAZENAMENTO COMPATÍVEL (window.storage + localStorage)
+   7. CAMADA DE DADOS: SUPABASE (COM FALLBACK LOCALSTORAGE)
    ============================================================ */
-async function getList(key){
-  try{
-    if(window.storage && typeof window.storage.get === 'function'){
-      const res = await window.storage.get(key, true);
-      return res ? JSON.parse(res.value) : [];
+// --- PRESENÇAS ---
+async function fetchPresencas(){
+  if(supabaseClient){
+    try {
+      const { data, error } = await supabaseClient
+        .from('presencas')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if(!error && data) return data;
+    } catch(e){
+      console.warn("Erro ao buscar no Supabase, usando local:", e);
     }
-    const val = localStorage.getItem(key);
-    return val ? JSON.parse(val) : [];
-  }catch(e){
-    return [];
   }
+  try {
+    const val = localStorage.getItem('manu-rsvp-list');
+    return val ? JSON.parse(val) : [];
+  } catch(e) { return []; }
 }
 
-async function saveList(key, list){
-  try{
-    if(window.storage && typeof window.storage.set === 'function'){
-      await window.storage.set(key, JSON.stringify(list), true);
-      return true;
+async function insertPresenca(entry){
+  if(supabaseClient){
+    try {
+      const { data, error } = await supabaseClient
+        .from('presencas')
+        .insert([{
+          nome: entry.name,
+          vai: entry.choice === 'yes',
+          recadinho: entry.note || null
+        }]);
+      if(!error) {
+        // Se houver recadinho, salva também no mural de recados automaticamente
+        if(entry.note && entry.note.trim()){
+          try {
+            await supabaseClient.from('recados').insert([{
+              nome: entry.name,
+              mensagem: entry.note.trim()
+            }]);
+            loadMessages();
+          } catch(err){}
+        }
+        return true;
+      }
+      console.error("Erro ao inserir no Supabase:", error);
+    } catch(e){
+      console.error("Exceção Supabase:", e);
     }
-    localStorage.setItem(key, JSON.stringify(list));
-    return true;
-  }catch(e){
-    return false;
   }
+  // Fallback Local
+  try {
+    const list = await fetchPresencas();
+    list.push(entry);
+    localStorage.setItem('manu-rsvp-list', JSON.stringify(list));
+    return true;
+  } catch(e){ return false; }
+}
+
+// --- RECADOS ---
+async function fetchRecados(){
+  if(supabaseClient){
+    try {
+      const { data, error } = await supabaseClient
+        .from('recados')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if(!error && data) return data;
+    } catch(e){
+      console.warn("Erro ao buscar recados no Supabase:", e);
+    }
+  }
+  try {
+    const val = localStorage.getItem('manu-recados-list');
+    return val ? JSON.parse(val) : [];
+  } catch(e) { return []; }
+}
+
+async function insertRecado(entry){
+  if(supabaseClient){
+    try {
+      const { data, error } = await supabaseClient
+        .from('recados')
+        .insert([{
+          nome: entry.name,
+          mensagem: entry.text
+        }]);
+      if(!error) return true;
+      console.error("Erro ao publicar recado no Supabase:", error);
+    } catch(e){
+      console.error("Exceção Supabase:", e);
+    }
+  }
+  try {
+    const list = await fetchRecados();
+    list.unshift(entry);
+    localStorage.setItem('manu-recados-list', JSON.stringify(list));
+    return true;
+  } catch(e){ return false; }
 }
 
 /* ============================================================
@@ -1968,20 +2590,26 @@ btnNo.addEventListener('click', () => {
 });
 
 async function loadGuests(){
-  const list = await getList('manu-rsvp-list');
+  const list = await fetchPresencas();
   const countEl = document.getElementById('guest-count');
   const listEl = document.getElementById('guest-list');
-  const yesCount = list.filter(g => g.choice === 'yes').length;
   
-  if(list.length === 0){
+  const normalized = list.map(item => ({
+    name: item.nome || item.name || '',
+    vai: item.vai !== undefined ? item.vai : (item.choice === 'yes')
+  }));
+
+  const yesCount = normalized.filter(g => g.vai).length;
+  
+  if(normalized.length === 0){
     countEl.innerHTML = 'Seja a primeira pessoa a confirmar! ✨';
     listEl.innerHTML = '<div class="empty-note">Nenhuma confirmação ainda. Preencha o formulário acima!</div>';
     return;
   }
   
   countEl.innerHTML = `<b>${yesCount}</b> ${yesCount === 1 ? 'pessoa confirmada' : 'pessoas confirmadas'} até agora`;
-  listEl.innerHTML = list.map(g => `
-    <span class="guest-chip ${g.choice === 'no' ? 'no' : ''}">
+  listEl.innerHTML = normalized.map(g => `
+    <span class="guest-chip ${!g.vai ? 'no' : ''}">
       ${escapeHtml(g.name)}
     </span>
   `).join('');
@@ -2008,9 +2636,11 @@ document.getElementById('rsvp-submit').addEventListener('click', async () => {
   btn.disabled = true;
   btn.textContent = 'Confirmando...';
 
-  const list = await getList('manu-rsvp-list');
-  list.push({ name, choice: rsvpChoice, note: noteEl.value.trim(), ts: Date.now() });
-  const ok = await saveList('manu-rsvp-list', list);
+  const ok = await insertPresenca({
+    name,
+    choice: rsvpChoice,
+    note: noteEl.value.trim()
+  });
 
   btn.disabled = false;
   btn.textContent = 'Enviar Confirmação';
@@ -2035,13 +2665,19 @@ document.getElementById('rsvp-submit').addEventListener('click', async () => {
    9. MURAL DE RECADOS
    ============================================================ */
 async function loadMessages(){
-  const list = await getList('manu-recados-list');
+  const list = await fetchRecados();
   const el = document.getElementById('message-list');
   if(list.length === 0){
     el.innerHTML = '<div class="empty-note">Seja a primeira pessoa a deixar um carinho para a Manu! 💌</div>';
     return;
   }
-  el.innerHTML = list.slice().reverse().map(m => `
+  
+  const normalized = list.map(item => ({
+    name: item.nome || item.name || 'Convidado(a)',
+    text: item.mensagem || item.text || ''
+  }));
+
+  el.innerHTML = normalized.map(m => `
     <div class="message-card reveal-on-scroll is-visible">
       <div class="msg-name">${escapeHtml(m.name)}</div>
       <div class="msg-text">"${escapeHtml(m.text)}"</div>
@@ -2066,9 +2702,7 @@ document.getElementById('msg-submit').addEventListener('click', async () => {
   btn.disabled = true;
   btn.textContent = 'Publicando...';
 
-  const list = await getList('manu-recados-list');
-  list.push({ name, text, ts: Date.now() });
-  const ok = await saveList('manu-recados-list', list);
+  const ok = await insertRecado({ name, text });
 
   btn.disabled = false;
   btn.textContent = 'Publicar Mensagem';
@@ -2092,30 +2726,20 @@ function escapeHtml(str){
 }
 
 /* ============================================================
-   10. INICIALIZAÇÃO COMPLETA
+   10. INICIALIZAÇÃO COMPLETA & SUPABASE REALTIME
    ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
   initLetterSplit();
   initScrollObserver();
   loadGuests();
   loadMessages();
-  
-  // Animação imediata para elementos do topo visíveis no carregamento
-  setTimeout(() => {
-    document.querySelectorAll('.hero .letter-split, .hero.reveal-on-scroll').forEach(el => {
-      el.classList.add('is-visible');
-    });
-  }, 100);
 });
 
 if(document.readyState === 'interactive' || document.readyState === 'complete'){
   initLetterSplit();
   initScrollObserver();
-  setTimeout(() => {
-    document.querySelectorAll('.hero .letter-split, .hero.reveal-on-scroll').forEach(el => {
-      el.classList.add('is-visible');
-    });
-  }, 100);
+  loadGuests();
+  loadMessages();
 }
 </script>
 </body>
