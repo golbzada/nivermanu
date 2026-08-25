@@ -165,7 +165,7 @@ body.overlay-active{
 .env-door-left .env-door-inner{ left: 0; }
 .env-door-right .env-door-inner{ left: -100%; }
 
-/* Moldura fina dupla (Linha sólida externa + Linha tracejada interna) */
+/* Moldura fina dupla */
 .env-card-border-outer{
   position: absolute;
   inset: 12px;
@@ -193,7 +193,7 @@ body.overlay-active{
 .env-corner-flourish.bl{ bottom: 20px; left: 20px; transform: scaleY(-1); }
 .env-corner-flourish.br{ bottom: 20px; right: 20px; transform: scale(-1); }
 
-/* Detalhes de brilhos e pontos sutis espalhados */
+/* Detalhes de brilhos */
 .env-card-sparkles{
   position: absolute;
   inset: 0;
@@ -210,7 +210,7 @@ body.overlay-active{
     radial-gradient(2px 2px at 25% 91%, rgba(215, 185, 140, 0.5) 0, transparent 70%);
 }
 
-/* Detalhe do eixo central com estrela e pontos verticais */
+/* Detalhe do eixo central */
 .env-seam-ornament{
   position: absolute;
   left: 50%;
@@ -255,17 +255,19 @@ body.overlay-active{
 
 .invite-seal-disc{
   position: relative;
-  width: 82px;
-  height: 82px;
+  width: 84px;
+  height: 84px;
   border-radius: 50%;
   overflow: hidden;
-  filter: drop-shadow(0 6px 14px rgba(135, 95, 45, 0.38));
+  filter: drop-shadow(0 6px 16px rgba(120, 80, 35, 0.42));
 }
 
 .invite-seal{
   width: 100%;
   height: 100%;
   display: block;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 /* Efeito de feixe de brilho deslizante (Sheen Sweep) */
@@ -357,7 +359,241 @@ body.overlay-active{
   opacity: 0;
 }
 
-/* Fundo mágico com partículas de luz ambiente */
+/* ============================================================
+   REPRODUTOR DE MÚSICA FLUTUANTE COM CONTROLE DE VOLUME
+   ============================================================ */
+.music-player-container{
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  z-index: 9990;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* Cápsula expansível suave */
+.music-capsule{
+  display: flex;
+  align-items: center;
+  background: rgba(255, 250, 245, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 201, 138, 0.75);
+  border-radius: 40px;
+  padding: 4px;
+  box-shadow: 0 10px 30px -5px rgba(120,60,80,0.22), 0 0 0 1px rgba(255,255,255,0.7);
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  overflow: hidden;
+  max-width: 48px;
+  height: 48px;
+}
+
+.music-capsule.expanded{
+  max-width: 310px;
+  padding: 4px 12px 4px 4px;
+}
+
+/* Botão do Disquinho (Trigger) */
+.music-fab-btn{
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fffafd 0%, #fae6ec 50%, #f4ead9 100%);
+  border: 1px solid rgba(226, 201, 138, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  flex: 0 0 40px;
+  position: relative;
+  transition: transform 0.25s ease;
+}
+.music-fab-btn:hover{ transform: scale(1.06); }
+.music-fab-btn:active{ transform: scale(0.95); }
+
+/* Disquinho de vinil giratório */
+.music-disc{
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #6b4c57 0%, #3e2a33 60%, #a37b42 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 0 1.5px rgba(226,201,138,0.6), 0 2px 4px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease;
+}
+
+.music-disc.spinning{
+  animation: spinVinyl 4.5s linear infinite;
+}
+@keyframes spinVinyl{
+  0%{ transform: rotate(0deg); }
+  100%{ transform: rotate(360deg); }
+}
+
+.music-center-note{
+  font-size: 11px;
+  line-height: 1;
+  color: #f7e3e6;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+}
+
+/* Mini Equalizador badge */
+.music-eq-waves{
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5px;
+  height: 10px;
+  background: rgba(255, 250, 245, 0.95);
+  padding: 1.5px 2.5px;
+  border-radius: 5px;
+  border: 0.8px solid var(--blush-deep);
+}
+.music-eq-waves span{
+  width: 2px;
+  background: var(--rose-deep);
+  border-radius: 1px;
+  height: 2px;
+  transition: height 0.2s ease;
+}
+.music-eq-waves.active span:nth-child(1){ animation: eqPulse 0.9s ease-in-out infinite alternate; }
+.music-eq-waves.active span:nth-child(2){ animation: eqPulse 0.65s ease-in-out infinite alternate 0.2s; }
+.music-eq-waves.active span:nth-child(3){ animation: eqPulse 0.8s ease-in-out infinite alternate 0.4s; }
+
+@keyframes eqPulse{
+  0%{ height: 2px; }
+  100%{ height: 7px; }
+}
+
+/* Painel de Controles */
+.music-controls-panel{
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding-left: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+  white-space: nowrap;
+}
+
+.music-capsule.expanded .music-controls-panel{
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+}
+
+.music-ctrl-btn{
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  border-radius: 50%;
+  transition: color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+  user-select: none;
+}
+.music-ctrl-btn:hover{
+  color: var(--rose-deep);
+  transform: scale(1.12);
+}
+.music-ctrl-btn:active{ transform: scale(0.92); }
+
+.music-ctrl-btn.side-btn svg{
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* Botão central redondo de Play/Pause */
+.music-ctrl-btn.main-play-btn{
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--ink);
+  border: 1px solid rgba(226, 201, 138, 0.7);
+  box-shadow: 0 2px 8px -1px rgba(120,60,80,0.18);
+}
+.music-ctrl-btn.main-play-btn:hover{
+  background: var(--blush);
+  color: var(--rose-deep);
+  border-color: var(--rose);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px -2px rgba(200,96,126,0.3);
+}
+.music-ctrl-btn.main-play-btn svg{
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+/* Controle de Volume Minimalista */
+.volume-control-wrap{
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 2px;
+  padding-left: 6px;
+  border-left: 1px solid rgba(224, 135, 159, 0.3);
+}
+
+.volume-btn svg{
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+}
+
+.volume-slider{
+  -webkit-appearance: none;
+  appearance: none;
+  width: 48px;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--rose-deep) 0%, var(--rose-deep) var(--vol-percent, 55%), #e8d7dc var(--vol-percent, 55%), #e8d7dc 100%);
+  outline: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.volume-slider::-webkit-slider-thumb{
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid var(--rose-deep);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.volume-slider::-webkit-slider-thumb:hover{
+  transform: scale(1.25);
+  background: var(--blush);
+}
+
+.volume-slider::-moz-range-thumb{
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid var(--rose-deep);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+/* Fundo mágico */
 .ambient-glow{
   position: fixed;
   inset: 0;
@@ -584,7 +820,7 @@ a{ color:inherit; text-decoration:none; }
   position:relative; z-index:2;
 }
 
-/* ============ ANIMAÇÕES DE ABERTURA (LETRA & SEÇÕES) ============ */
+/* ============ ANIMAÇÕES DE ABERTURA ============ */
 .letter-split{
   white-space: nowrap;
   display: inline-flex;
@@ -983,7 +1219,7 @@ a{ color:inherit; text-decoration:none; }
   line-height:1.75;
 }
 
-/* COMIDAS E BEBIDAS (TWO COL) */
+/* COMIDAS E BEBIDAS */
 .two-col{
   display:grid;
   grid-template-columns: 1fr 1fr;
@@ -1078,7 +1314,7 @@ a{ color:inherit; text-decoration:none; }
 }
 .mini-card ul li.note::before{ content:""; }
 
-/* ============ DETALHES COM MAPA (ONDE & QUANDO) ============ */
+/* ============ DETALHES COM MAPA ============ */
 .location-showcase-grid{
   display: grid;
   grid-template-columns: 1.15fr 1fr;
@@ -1249,7 +1485,7 @@ a{ color:inherit; text-decoration:none; }
   transform: scale(1.2) rotate(15deg);
 }
 
-/* ============ FOOTER (Rodapé Final do Site) ============ */
+/* ============ FOOTER ============ */
 .footer{
   position:relative;
   text-align:center;
@@ -1322,7 +1558,7 @@ a{ color:inherit; text-decoration:none; }
 }
 .footer-bottom-pad{ height:12px; }
 
-/* ============ FORMULÁRIOS: PRESENÇA (RSVP) & RECADOS ============ */
+/* ============ FORMULÁRIOS ============ */
 .form-wrap{
   padding: 26px clamp(20px, 5vw, 48px) 32px;
   max-width: 600px;
@@ -1588,12 +1824,13 @@ a{ color:inherit; text-decoration:none; }
   .body-content{ padding-left: 14px; padding-right: 14px; }
   .hero{ padding-left: 16px; padding-right: 16px; }
   .ribbon-banner{ padding: 7px 24px; min-width: 150px; }
+  .music-player-container{ bottom: 16px; right: 16px; }
 }
 </style>
 </head>
 <body>
 
-<!-- ============ TELA DE ABERTURA: CONVITE FECHADO COM 3D SPLIT (EXATO DA IMAGEM) ============ -->
+<!-- ============ TELA DE ABERTURA: CONVITE FECHADO COM 3D SPLIT ============ -->
 <div id="envelope-overlay" class="envelope-overlay">
   <div class="env-ambient-glow">
     <div class="env-glow-circle g1"></div>
@@ -1610,7 +1847,6 @@ a{ color:inherit; text-decoration:none; }
           <div class="env-card-border-inner"></div>
           <div class="env-card-sparkles"></div>
 
-          <!-- Cantoneiras decorativas (Flourishes nos 4 cantos) -->
           <svg class="env-corner-flourish tl" viewBox="0 0 30 30" fill="none">
             <path d="M 4 24 C 4 13 13 4 24 4 M 4 4 L 4 14 M 4 4 L 14 4 M 9 9 C 13 6 18 6 21 9 C 24 12 24 17 21 20" stroke="#cfaf7e" stroke-width="1.1" stroke-linecap="round"/>
             <circle cx="4" cy="4" r="1.5" fill="#cfaf7e"/>
@@ -1636,11 +1872,10 @@ a{ color:inherit; text-decoration:none; }
             <circle cx="4" cy="12" r="0.9" fill="#cfaf7e"/>
           </svg>
 
-          <!-- Detalhes do eixo central (Superior e Inferior) -->
           <div class="env-seam-ornament top">
             <div class="dot"></div>
             <div class="dot"></div>
-            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
+            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 0Z"/></svg>
             <div class="dot"></div>
             <div class="dot"></div>
           </div>
@@ -1648,7 +1883,7 @@ a{ color:inherit; text-decoration:none; }
           <div class="env-seam-ornament bottom">
             <div class="dot"></div>
             <div class="dot"></div>
-            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
+            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 0Z"/></svg>
             <div class="dot"></div>
             <div class="dot"></div>
           </div>
@@ -1690,7 +1925,7 @@ a{ color:inherit; text-decoration:none; }
           <div class="env-seam-ornament top">
             <div class="dot"></div>
             <div class="dot"></div>
-            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
+            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 0Z"/></svg>
             <div class="dot"></div>
             <div class="dot"></div>
           </div>
@@ -1698,7 +1933,7 @@ a{ color:inherit; text-decoration:none; }
           <div class="env-seam-ornament bottom">
             <div class="dot"></div>
             <div class="dot"></div>
-            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 12 7 12 0Z"/></svg>
+            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C12 7 17 12 24 12 17 12 12 17 12 24 12 17 7 12 0 12 7 12 0Z"/></svg>
             <div class="dot"></div>
             <div class="dot"></div>
           </div>
@@ -1726,44 +1961,68 @@ a{ color:inherit; text-decoration:none; }
       </svg>
     </div>
 
-    <!-- ============ MEDALHÃO DOURADO COM BORDAS PONTILHADAS, MONOGRAMA "M" E BRILHO ANIMADO ============ -->
+    <!-- ============ MEDALHÃO DOURADO OFICIAL COM A TIPOGRAFIA EXATA ============ -->
     <div class="invite-seal-wrap">
       <div class="invite-seal-disc">
-        <svg class="invite-seal" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="medallionGold" cx="36%" cy="32%" r="70%">
-              <stop offset="0%" stop-color="#fdf4d1"/>
-              <stop offset="25%" stop-color="#eed18e"/>
-              <stop offset="65%" stop-color="#cca054"/>
-              <stop offset="100%" stop-color="#9a7031"/>
-            </radialGradient>
-            <radialGradient id="beadsGold" cx="40%" cy="35%" r="65%">
-              <stop offset="0%" stop-color="#fff8df"/>
-              <stop offset="60%" stop-color="#d6ab5b"/>
-              <stop offset="100%" stop-color="#8a6125"/>
-            </radialGradient>
-          </defs>
-
-          <circle cx="50" cy="50" r="46" fill="url(#medallionGold)"/>
-          
-          <circle cx="50" cy="50" r="42.5" fill="none" stroke="#68471b" stroke-width="2.2" stroke-dasharray="0.01 5.56" stroke-linecap="round" opacity="0.35"/>
-          <circle cx="50" cy="50" r="42.5" fill="none" stroke="url(#beadsGold)" stroke-width="1.8" stroke-dasharray="0.01 5.56" stroke-linecap="round"/>
-          
-          <circle cx="50" cy="50" r="38" fill="none" stroke="#faecbe" stroke-width="0.8" opacity="0.75"/>
-          <circle cx="50" cy="50" r="37.2" fill="none" stroke="#9d7334" stroke-width="0.6" opacity="0.45"/>
-
-          <ellipse cx="40" cy="36" rx="20" ry="14" fill="#ffffff" opacity="0.18"/>
-
-          <text x="50" y="62" text-anchor="middle" font-family="'Parisienne', cursive" font-size="39"
-                fill="#6a4a22" font-weight="normal" style="paint-order:stroke; stroke:#f8eecf; stroke-width:0.4px;">M</text>
-        </svg>
-
+        <img src="favicon.png" class="invite-seal" alt="Medalhão Dourado M">
         <div class="seal-sheen"></div>
       </div>
     </div>
 
   </div>
 
+</div>
+
+<!-- ============ REPRODUTOR DE MÚSICA FLUTUANTE COM CONTROLES E VOLUME ============ -->
+<div class="music-player-container">
+  <div class="music-capsule" id="musicCapsule">
+    
+    <!-- Disquinho clicável que abre/fecha os controles -->
+    <div class="music-fab-btn" id="musicFabBtn" onclick="toggleMusicCapsule(event)" title="Controles de Música">
+      <div class="music-disc" id="musicDisc">
+        <span class="music-center-note" id="musicNoteIcon">🎵</span>
+      </div>
+      <div class="music-eq-waves" id="musicWaves">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+
+    <!-- Painel de Controles (Voltar, Play/Pause, Avançar, Volume) -->
+    <div class="music-controls-panel" id="musicControlsPanel">
+      
+      <!-- Voltar Faixa -->
+      <button type="button" class="music-ctrl-btn side-btn" onclick="prevTrack(event)" title="Música Anterior" aria-label="Música Anterior">
+        <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+      </button>
+
+      <!-- Botão Central Play / Pause Principal -->
+      <button type="button" class="music-ctrl-btn main-play-btn" id="mainPlayPauseBtn" onclick="togglePlayPause(event)" title="Pausar / Tocar Música" aria-label="Pausar / Tocar">
+        <svg id="iconPause" viewBox="0 0 24 24" style="display:block;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        <svg id="iconPlay" viewBox="0 0 24 24" style="display:none;"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+
+      <!-- Avançar Faixa -->
+      <button type="button" class="music-ctrl-btn side-btn" onclick="nextTrack(event)" title="Próxima Música" aria-label="Próxima Música">
+        <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+      </button>
+
+      <!-- Controle de Volume -->
+      <div class="volume-control-wrap" onclick="event.stopPropagation()">
+        <button type="button" class="music-ctrl-btn volume-btn" id="volumeBtn" onclick="toggleMute(event)" title="Silenciar / Ativar Volume">
+          <svg id="volIconHigh" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+          <svg id="volIconLow" viewBox="0 0 24 24" style="display:none;"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          <svg id="volIconMute" viewBox="0 0 24 24" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+        </button>
+        <input type="range" min="0" max="1" step="0.01" value="0.55" class="volume-slider" id="volumeSlider" oninput="setVolume(this.value, event)">
+      </div>
+
+    </div>
+
+  </div>
+
+  <audio id="bgAudio" preload="auto">
+    <source src="musica01.mp3" type="audio/mpeg">
+  </audio>
 </div>
 
 <canvas id="confetti-canvas"></canvas>
@@ -1802,7 +2061,7 @@ a{ color:inherit; text-decoration:none; }
   <div class="card">
 
     <!-- ============================================================
-         SESSÃO 1: INÍCIO (Convite, Festa Fantasia, Passatempos, Comidas e Bebidas)
+         SESSÃO 1: INÍCIO
          ============================================================ -->
     <section class="page-section" id="inicio">
 
@@ -1852,7 +2111,7 @@ a{ color:inherit; text-decoration:none; }
         </div>
       </div>
 
-      <!-- Banner de Seção Festa Fantasia -->
+      <!-- Banner Festa Fantasia -->
       <div class="section-banner reveal-on-scroll">
         <div class="sparkle-bg"></div>
         <div class="section-banner-title letter-split">Festa Fantasia ˖ ࣪⊹</div>
@@ -1914,7 +2173,7 @@ a{ color:inherit; text-decoration:none; }
     </section>
 
     <!-- ============================================================
-         SESSÃO 2: PRESENÇA (RSVP & Lista de Convidados)
+         SESSÃO 2: PRESENÇA (RSVP)
          ============================================================ -->
     <section class="page-section" id="presenca">
       <div class="section-banner reveal-on-scroll">
@@ -1962,7 +2221,7 @@ a{ color:inherit; text-decoration:none; }
     </section>
 
     <!-- ============================================================
-         SESSÃO 3: ONDE & QUANDO (com Banner Decorativo e Mapa)
+         SESSÃO 3: ONDE & QUANDO
          ============================================================ -->
     <section class="page-section" id="local">
       <div class="section-banner reveal-on-scroll">
@@ -2041,7 +2300,7 @@ a{ color:inherit; text-decoration:none; }
     </section>
 
     <!-- ============================================================
-         SESSÃO 4: RECADOS (Acima do rodapé)
+         SESSÃO 4: RECADOS
          ============================================================ -->
     <section class="page-section" id="recados">
       <div class="section-banner reveal-on-scroll">
@@ -2073,7 +2332,7 @@ a{ color:inherit; text-decoration:none; }
     </section>
 
     <!-- ============================================================
-         RODAPÉ FINAL (Com carinho, a aniversariante)
+         RODAPÉ FINAL
          ============================================================ -->
     <footer class="footer reveal-on-scroll" id="rodape">
       <div class="sparkle-bg"></div>
@@ -2116,7 +2375,7 @@ a{ color:inherit; text-decoration:none; }
 
 <script>
 /* ============================================================
-   CONFIGURAÇÃO DO SUPABASE (EM NUVEM EM TEMPO REAL)
+   CONFIGURAÇÃO DO SUPABASE
    ============================================================ */
 const SUPABASE_URL = "https://myioouubjegvfaheuezo.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_z0bqPR0jj0hFaKjnwERPMQ_K3UV7SdM";
@@ -2131,7 +2390,168 @@ if(typeof window.supabase !== 'undefined' && SUPABASE_URL && SUPABASE_ANON_KEY){
 }
 
 /* ============================================================
-   0. CONTROLE DA TELA DE ABERTURA (OVERLAY CONVITE FECHADO)
+   SISTEMA DE PLAYLIST & CONTROLES SUTIS COM VOLUME
+   ============================================================ */
+const PLAYLIST = [
+  { id: 0, title: "Trilha 1", src: "musica01.mp3" },
+  { id: 1, title: "Trilha 2", src: "musica02.mp3" },
+  { id: 2, title: "Trilha 3", src: "musica03.mp3" }
+];
+
+let currentTrackIndex = 0;
+let isMusicPlaying = false;
+let previousVolume = 0.55;
+
+const bgAudio = document.getElementById('bgAudio');
+const musicCapsule = document.getElementById('musicCapsule');
+const musicDisc = document.getElementById('musicDisc');
+const musicWaves = document.getElementById('musicWaves');
+const musicNoteIcon = document.getElementById('musicNoteIcon');
+const iconPause = document.getElementById('iconPause');
+const iconPlay = document.getElementById('iconPlay');
+const volumeSlider = document.getElementById('volumeSlider');
+const volIconHigh = document.getElementById('volIconHigh');
+const volIconLow = document.getElementById('volIconLow');
+const volIconMute = document.getElementById('volIconMute');
+
+function updatePlayerUI(){
+  if(isMusicPlaying){
+    if(musicDisc) musicDisc.classList.add('spinning');
+    if(musicWaves) musicWaves.classList.add('active');
+    if(musicNoteIcon) musicNoteIcon.textContent = '🎵';
+    if(iconPause) iconPause.style.display = 'block';
+    if(iconPlay) iconPlay.style.display = 'none';
+  } else {
+    if(musicDisc) musicDisc.classList.remove('spinning');
+    if(musicWaves) musicWaves.classList.remove('active');
+    if(musicNoteIcon) musicNoteIcon.textContent = '🔇';
+    if(iconPause) iconPause.style.display = 'none';
+    if(iconPlay) iconPlay.style.display = 'block';
+  }
+}
+
+function updateVolumeUI(vol){
+  if(volumeSlider){
+    volumeSlider.value = vol;
+    volumeSlider.style.setProperty('--vol-percent', `${vol * 100}%`);
+  }
+  if(volIconHigh && volIconLow && volIconMute){
+    if(vol === 0){
+      volIconHigh.style.display = 'none';
+      volIconLow.style.display = 'none';
+      volIconMute.style.display = 'block';
+    } else if(vol < 0.4){
+      volIconHigh.style.display = 'none';
+      volIconLow.style.display = 'block';
+      volIconMute.style.display = 'none';
+    } else {
+      volIconHigh.style.display = 'block';
+      volIconLow.style.display = 'none';
+      volIconMute.style.display = 'none';
+    }
+  }
+}
+
+function setVolume(val, e){
+  if(e) e.stopPropagation();
+  const vol = parseFloat(val);
+  if(bgAudio){
+    bgAudio.volume = vol;
+    if(vol > 0) previousVolume = vol;
+  }
+  updateVolumeUI(vol);
+}
+
+function toggleMute(e){
+  if(e) e.stopPropagation();
+  if(!bgAudio) return;
+  if(bgAudio.volume > 0){
+    previousVolume = bgAudio.volume;
+    setVolume(0);
+  } else {
+    setVolume(previousVolume > 0 ? previousVolume : 0.55);
+  }
+}
+
+function loadTrack(index, autoPlay = true){
+  if(index < 0) index = PLAYLIST.length - 1;
+  if(index >= PLAYLIST.length) index = 0;
+  
+  currentTrackIndex = index;
+  const currentVol = bgAudio ? bgAudio.volume : 0.55;
+  bgAudio.src = PLAYLIST[currentTrackIndex].src;
+  bgAudio.load();
+  bgAudio.volume = currentVol;
+  
+  if(autoPlay){
+    playMusic();
+  } else {
+    updatePlayerUI();
+  }
+}
+
+function playMusic(){
+  if(!bgAudio) return;
+  const playPromise = bgAudio.play();
+  if(playPromise !== undefined){
+    playPromise.then(() => {
+      isMusicPlaying = true;
+      updatePlayerUI();
+      sessionStorage.setItem('manu-music-playing', 'true');
+    }).catch(err => {
+      console.log('Autoplay aguardando interação:', err);
+    });
+  }
+}
+
+function pauseMusic(){
+  if(!bgAudio) return;
+  bgAudio.pause();
+  isMusicPlaying = false;
+  updatePlayerUI();
+  sessionStorage.setItem('manu-music-playing', 'false');
+}
+
+function togglePlayPause(e){
+  if(e) e.stopPropagation();
+  if(isMusicPlaying){
+    pauseMusic();
+  } else {
+    playMusic();
+  }
+}
+
+function prevTrack(e){
+  if(e) e.stopPropagation();
+  loadTrack(currentTrackIndex - 1, true);
+}
+
+function nextTrack(e){
+  if(e) e.stopPropagation();
+  loadTrack(currentTrackIndex + 1, true);
+}
+
+if(bgAudio){
+  bgAudio.addEventListener('ended', () => {
+    nextTrack();
+  });
+}
+
+function toggleMusicCapsule(e){
+  if(e) e.stopPropagation();
+  if(musicCapsule){
+    musicCapsule.classList.toggle('expanded');
+  }
+}
+
+document.addEventListener('click', (e) => {
+  if(musicCapsule && !musicCapsule.contains(e.target)){
+    musicCapsule.classList.remove('expanded');
+  }
+});
+
+/* ============================================================
+   0. CONTROLE DA TELA DE ABERTURA
    ============================================================ */
 (function initEnvelopeOverlay(){
   const overlay = document.getElementById('envelope-overlay');
@@ -2141,6 +2561,17 @@ if(typeof window.supabase !== 'undefined' && SUPABASE_URL && SUPABASE_ANON_KEY){
   if(isAlreadyOpened){
     overlay.style.display = 'none';
     document.body.classList.remove('overlay-active');
+    
+    const pref = sessionStorage.getItem('manu-music-playing');
+    if(pref !== 'false'){
+      const startAudioOnFirstTouch = () => {
+        playMusic();
+        document.removeEventListener('click', startAudioOnFirstTouch);
+        document.removeEventListener('touchstart', startAudioOnFirstTouch);
+      };
+      document.addEventListener('click', startAudioOnFirstTouch, { once: true });
+      document.addEventListener('touchstart', startAudioOnFirstTouch, { once: true });
+    }
   } else {
     document.body.classList.add('overlay-active');
     
@@ -2148,6 +2579,8 @@ if(typeof window.supabase !== 'undefined' && SUPABASE_URL && SUPABASE_ANON_KEY){
     function openInvitation(){
       if(isOpening) return;
       isOpening = true;
+      
+      playMusic();
       
       const stage = document.getElementById('envStage');
       if(stage) stage.classList.add('opening');
@@ -2182,7 +2615,7 @@ if(typeof window.supabase !== 'undefined' && SUPABASE_URL && SUPABASE_ANON_KEY){
 })();
 
 /* ============================================================
-   1. ANIMAÇÃO DE ABERTURA DE LETRAS (TEXT SPLIT REVEAL)
+   1. ANIMAÇÃO DE ABERTURA DE LETRAS
    ============================================================ */
 const titleObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
@@ -2236,7 +2669,7 @@ function initLetterSplit(container = document){
 }
 
 /* ============================================================
-   2. SCROLL REVEAL (INTERSECTION OBSERVER)
+   2. SCROLL REVEAL
    ============================================================ */
 const scrollObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
@@ -2256,7 +2689,7 @@ function initScrollObserver(container = document){
 }
 
 /* ============================================================
-   3. NAVEGAÇÃO SUAVE & SCROLLSPY
+   3. NAVEGAÇÃO SUAVE
    ============================================================ */
 const navLinks = document.querySelectorAll('[data-nav]');
 const burger = document.getElementById('burgerBtn');
@@ -2340,7 +2773,7 @@ function tickCountdown(){
 tickCountdown();
 setInterval(tickCountdown, 1000);
 
-/* ============ 5. CALENDAR LINKS & COPIAR ENDEREÇO ============ */
+/* ============ 5. CALENDAR & COPIAR ENDEREÇO ============ */
 const evtTitle = encodeURIComponent('Aniversário de 19 anos da Manuela');
 const evtDetails = encodeURIComponent('Festa Fantasia! Venha comemorar os 19 anos da Manuela.');
 const evtLocation = encodeURIComponent('Rua Julia Ostanelli Favrin, Número 15, quadra D, Estância Recreativa San Fernando, Valinhos - SP');
@@ -2408,7 +2841,7 @@ function copyAddress() {
   }
 }
 
-/* ============ 6. SISTEMA DE CONFETES (CONFETTI BURST) ============ */
+/* ============ 6. SISTEMA DE CONFETES ============ */
 function triggerCelebrationConfetti(){
   const canvas = document.getElementById('confetti-canvas');
   if(!canvas) return;
@@ -2470,9 +2903,8 @@ function triggerCelebrationConfetti(){
 }
 
 /* ============================================================
-   7. CAMADA DE DADOS: SUPABASE (COM FALLBACK LOCALSTORAGE)
+   7. CAMADA DE DADOS: SUPABASE
    ============================================================ */
-// --- PRESENÇAS ---
 async function fetchPresencas(){
   if(supabaseClient){
     try {
@@ -2502,7 +2934,6 @@ async function insertPresenca(entry){
           recadinho: entry.note || null
         }]);
       if(!error) {
-        // Se houver recadinho, salva também no mural de recados automaticamente
         if(entry.note && entry.note.trim()){
           try {
             await supabaseClient.from('recados').insert([{
@@ -2519,7 +2950,6 @@ async function insertPresenca(entry){
       console.error("Exceção Supabase:", e);
     }
   }
-  // Fallback Local
   try {
     const list = await fetchPresencas();
     list.push(entry);
@@ -2528,7 +2958,6 @@ async function insertPresenca(entry){
   } catch(e){ return false; }
 }
 
-// --- RECADOS ---
 async function fetchRecados(){
   if(supabaseClient){
     try {
@@ -2571,7 +3000,7 @@ async function insertRecado(entry){
 }
 
 /* ============================================================
-   8. RSVP (CONFIRMAÇÃO DE PRESENÇA)
+   8. RSVP
    ============================================================ */
 let rsvpChoice = null;
 const btnYes = document.getElementById('btn-yes');
@@ -2726,13 +3155,14 @@ function escapeHtml(str){
 }
 
 /* ============================================================
-   10. INICIALIZAÇÃO COMPLETA & SUPABASE REALTIME
+   10. INICIALIZAÇÃO COMPLETA
    ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
   initLetterSplit();
   initScrollObserver();
   loadGuests();
   loadMessages();
+  updateVolumeUI(0.55);
 });
 
 if(document.readyState === 'interactive' || document.readyState === 'complete'){
@@ -2740,6 +3170,7 @@ if(document.readyState === 'interactive' || document.readyState === 'complete'){
   initScrollObserver();
   loadGuests();
   loadMessages();
+  updateVolumeUI(0.55);
 }
 </script>
 </body>
