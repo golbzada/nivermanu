@@ -13,8 +13,6 @@
 <link rel="shortcut icon" href="favicon.ico">
 <link rel="apple-touch-icon" href="favicon.png">
 
-<!-- Supabase JS Client Oficial -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Parisienne&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Jost:wght@300;400;500;600;700&display=swap');
@@ -2280,36 +2278,11 @@ a{ color:inherit; text-decoration:none; }
       <div class="section-banner reveal-on-scroll">
         <div class="sparkle-bg"></div>
         <div class="section-banner-title letter-split">Confirme sua Presença</div>
-        <div class="section-banner-sub">conta pra mim se você vem? ✧</div>
+        <div class="section-banner-sub">obrigada a todos que vieram ✧</div>
       </div>
 
       <div class="form-wrap">
-        <div class="field reveal-on-scroll stagger-1">
-          <label for="rsvp-name">Nome Completo</label>
-          <input type="text" id="rsvp-name" placeholder="Ex: Maria Souza" autocomplete="name">
-        </div>
-        
-        <div class="field reveal-on-scroll stagger-2">
-          <label>Você vai?</label>
-          <div class="choice-group">
-            <button type="button" class="choice-btn" id="btn-yes" data-choice="yes">
-              <span>Sim, estarei lá! 💗</span>
-            </button>
-            <button type="button" class="choice-btn" id="btn-no" data-choice="no">
-              <span>Infelizmente não</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="field reveal-on-scroll stagger-3">
-          <label for="rsvp-note">Recadinho (opcional)</label>
-          <textarea id="rsvp-note" placeholder="Escreva algo lindo para a aniversariante..."></textarea>
-        </div>
-
-        <button class="submit-btn reveal-on-scroll stagger-4" id="rsvp-submit">
-          Enviar Confirmação
-        </button>
-        <div class="form-msg" id="rsvp-msg"></div>
+        <div class="form-msg show">As confirmações foram encerradas — a festa já passou! ✧</div>
       </div>
 
       <div class="gold-line" style="padding:0 26px; width:calc(100% - 52px); margin:0 auto 6px;"></div>
@@ -2407,24 +2380,11 @@ a{ color:inherit; text-decoration:none; }
       <div class="section-banner reveal-on-scroll">
         <div class="sparkle-bg"></div>
         <div class="section-banner-title letter-split">Mural de Recados</div>
-        <div class="section-banner-sub">deixe um carinho pra Manu ✧</div>
+        <div class="section-banner-sub">os carinhos que a Manu recebeu ✧</div>
       </div>
 
       <div class="form-wrap" style="padding-bottom:14px;">
-        <div class="field reveal-on-scroll stagger-1">
-          <label for="msg-name">Seu Nome</label>
-          <input type="text" id="msg-name" placeholder="Ex: João Silva" autocomplete="name">
-        </div>
-
-        <div class="field reveal-on-scroll stagger-2">
-          <label for="msg-text">Sua Mensagem</label>
-          <textarea id="msg-text" placeholder="Escreva uma mensagem especial para a Manu..."></textarea>
-        </div>
-
-        <button class="submit-btn reveal-on-scroll stagger-3" id="msg-submit">
-          Publicar Mensagem
-        </button>
-        <div class="form-msg" id="msg-status"></div>
+        <div class="form-msg show">O mural está fechado para novos recados ✧</div>
       </div>
 
       <div class="message-list" id="message-list">
@@ -2533,21 +2493,6 @@ a{ color:inherit; text-decoration:none; }
 </div>
 
 <script>
-/* ============================================================
-   CONFIGURAÇÃO DO SUPABASE
-   ============================================================ */
-const SUPABASE_URL = "https://myioouubjegvfaheuezo.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_z0bqPR0jj0hFaKjnwERPMQ_K3UV7SdM";
-
-let supabaseClient = null;
-if(typeof window.supabase !== 'undefined' && SUPABASE_URL && SUPABASE_ANON_KEY){
-  try {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  } catch(e) {
-    console.warn("Supabase não inicializado:", e);
-  }
-}
-
 /* ============================================================
    SISTEMA DE PLAYLIST (musica01 até musica05) & CONTROLES SUTIS
    ============================================================ */
@@ -2914,7 +2859,10 @@ function tickCountdown(){
   if(!wrap) return;
 
   if(diff <= 0){
-    wrap.innerHTML = '<div class="countdown-today">É hoje! 🎉 Feliz aniversário, Manu! ✧</div>';
+    const label = document.querySelector('.countdown-label');
+    if(label) label.textContent = 'A festa já aconteceu';
+    wrap.innerHTML = '<div class="countdown-today">Já passou… quem sabe numa próxima! ✧</div>';
+    clearInterval(countdownTimer);
     return;
   }
 
@@ -2933,8 +2881,8 @@ function tickCountdown(){
   if(elM) elM.textContent = String(m).padStart(2,'0');
   if(elS) elS.textContent = String(s).padStart(2,'0');
 }
+const countdownTimer = setInterval(tickCountdown, 1000);
 tickCountdown();
-setInterval(tickCountdown, 1000);
 
 /* ============ 5. CALENDAR & COPIAR ENDEREÇO ============ */
 const evtTitle = encodeURIComponent('Aniversário de 19 anos da Manuela');
@@ -3066,250 +3014,66 @@ function triggerCelebrationConfetti(){
 }
 
 /* ============================================================
-   7. CAMADA DE DADOS: SUPABASE
+   7. DADOS SALVOS (A FESTA JÁ PASSOU)
+   Confirmações e recados exportados do backup do banco
+   (20/09/2026), mais recentes primeiro.
    ============================================================ */
-async function fetchPresencas(){
-  if(supabaseClient){
-    try {
-      const { data, error } = await supabaseClient
-        .from('presencas')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if(!error && data) return data;
-    } catch(e){
-      console.warn("Erro ao buscar no Supabase, usando local:", e);
-    }
-  }
-  try {
-    const val = localStorage.getItem('manu-rsvp-list');
-    return val ? JSON.parse(val) : [];
-  } catch(e) { return []; }
-}
-
-async function insertPresenca(entry){
-  if(supabaseClient){
-    try {
-      const { data, error } = await supabaseClient
-        .from('presencas')
-        .insert([{
-          nome: entry.name,
-          vai: entry.choice === 'yes',
-          recadinho: entry.note || null
-        }]);
-      if(!error) {
-        if(entry.note && entry.note.trim()){
-          try {
-            await supabaseClient.from('recados').insert([{
-              nome: entry.name,
-              mensagem: entry.note.trim()
-            }]);
-            loadMessages();
-          } catch(err){}
-        }
-        return true;
-      }
-      console.error("Erro ao inserir no Supabase:", error);
-    } catch(e){
-      console.error("Exceção Supabase:", e);
-    }
-  }
-  try {
-    const list = await fetchPresencas();
-    list.push(entry);
-    localStorage.setItem('manu-rsvp-list', JSON.stringify(list));
-    return true;
-  } catch(e){ return false; }
-}
-
-async function fetchRecados(){
-  if(supabaseClient){
-    try {
-      const { data, error } = await supabaseClient
-        .from('recados')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if(!error && data) return data;
-    } catch(e){
-      console.warn("Erro ao buscar recados no Supabase:", e);
-    }
-  }
-  try {
-    const val = localStorage.getItem('manu-recados-list');
-    return val ? JSON.parse(val) : [];
-  } catch(e) { return []; }
-}
-
-async function insertRecado(entry){
-  if(supabaseClient){
-    try {
-      const { data, error } = await supabaseClient
-        .from('recados')
-        .insert([{
-          nome: entry.name,
-          mensagem: entry.text
-        }]);
-      if(!error) return true;
-      console.error("Erro ao publicar recado no Supabase:", error);
-    } catch(e){
-      console.error("Exceção Supabase:", e);
-    }
-  }
-  try {
-    const list = await fetchRecados();
-    list.unshift(entry);
-    localStorage.setItem('manu-recados-list', JSON.stringify(list));
-    return true;
-  } catch(e){ return false; }
-}
+const PRESENCAS_SALVAS = [
+  {"nome": "Thiago Henrique Paes", "vai": true},
+  {"nome": "Nicole Mello de Oliveira", "vai": true},
+  {"nome": "Vitória de Sousa Silva", "vai": true},
+  {"nome": "lucas de Souza coutinho", "vai": true},
+  {"nome": "Yan", "vai": true},
+  {"nome": "Gabriel  henrique souza carreiro", "vai": true},
+  {"nome": "Miguel de Mello Gomes", "vai": true},
+  {"nome": "Caio Caetano Santos KKAY", "vai": true},
+  {"nome": "Samuel Kovalski Thielfalo", "vai": true},
+  {"nome": "Rafael Sandor", "vai": true},
+  {"nome": "Samuel Gomes", "vai": true},
+  {"nome": "Julia Colasante", "vai": true},
+  {"nome": "Wagner", "vai": true},
+  {"nome": "Rafaela Akemi Takamoto", "vai": true},
+  {"nome": "Paulo Gomes", "vai": true},
+  {"nome": "Samantha", "vai": true}
+];
+const RECADOS_SALVOS = [
+  {"nome": "Trombeta", "mensagem": "A"},
+  {"nome": "Nicole Mello de Oliveira", "mensagem": "lixo"},
+  {"nome": "Vitória de Sousa Silva", "mensagem": "Feliz aniversário, minha amiga! 💗✨ Que seu novo ciclo seja cheio de amor, felicidade e sonhos realizados. Você merece tudo de mais lindo nessa vida! 🥹💕 Te amooo"},
+  {"nome": "Yan", "mensagem": "Voce é nosso Raiozinho de sol manu, não deixe que ninguém e nada mude essa pessoa maravilhosa que tu é ❤️"},
+  {"nome": "Gabriel  henrique souza carreiro", "mensagem": "Feliz niver manu, love u"},
+  {"nome": "Miguel de Mello Gomes", "mensagem": "Manu é tipo um mareia"},
+  {"nome": "Caio Caetano Santos KKAY", "mensagem": "MC KKAY vai na festaaaa einnnn 😁"},
+  {"nome": "Julia Colasante", "mensagem": "Eu te amo minha bestie🥰Você é a luz que ilumina meus dias,nunca deixe de brilhar ✨"},
+  {"nome": "Rafaela Akemi Takamoto", "mensagem": "Não deixe com que os dias ruins te façam esquecer do brilho incrível que você tem gatinha❤️❤️"},
+  {"nome": "Paulo Gomes", "mensagem": "Parabéns, felicidades e juízo.. 🎂"}
+];
 
 /* ============================================================
-   8. RSVP
+   8. QUEM CONFIRMOU
    ============================================================ */
-let rsvpChoice = null;
-const btnYes = document.getElementById('btn-yes');
-const btnNo = document.getElementById('btn-no');
-
-btnYes.addEventListener('click', () => {
-  rsvpChoice = 'yes';
-  btnYes.classList.add('selected-yes');
-  btnNo.classList.remove('selected-no');
-});
-
-btnNo.addEventListener('click', () => {
-  rsvpChoice = 'no';
-  btnNo.classList.add('selected-no');
-  btnYes.classList.remove('selected-yes');
-});
-
-async function loadGuests(){
-  const list = await fetchPresencas();
-  const countEl = document.getElementById('guest-count');
-  const listEl = document.getElementById('guest-list');
-  
-  const normalized = list.map(item => ({
-    name: item.nome || item.name || '',
-    vai: item.vai !== undefined ? item.vai : (item.choice === 'yes')
-  }));
-
-  const yesCount = normalized.filter(g => g.vai).length;
-  
-  if(normalized.length === 0){
-    countEl.innerHTML = 'Seja a primeira pessoa a confirmar! ✨';
-    listEl.innerHTML = '<div class="empty-note">Nenhuma confirmação ainda. Preencha o formulário acima!</div>';
-    return;
-  }
-  
-  countEl.innerHTML = `<b>${yesCount}</b> ${yesCount === 1 ? 'pessoa confirmada' : 'pessoas confirmadas'} até agora`;
-  listEl.innerHTML = normalized.map(g => `
+function loadGuests(){
+  const yesCount = PRESENCAS_SALVAS.filter(g => g.vai).length;
+  document.getElementById('guest-count').innerHTML =
+    `<b>${yesCount}</b> ${yesCount === 1 ? 'pessoa confirmada' : 'pessoas confirmadas'}`;
+  document.getElementById('guest-list').innerHTML = PRESENCAS_SALVAS.map(g => `
     <span class="guest-chip ${!g.vai ? 'no' : ''}">
-      ${escapeHtml(g.name)}
+      ${escapeHtml(g.nome)}
     </span>
   `).join('');
 }
 
-document.getElementById('rsvp-submit').addEventListener('click', async () => {
-  const nameEl = document.getElementById('rsvp-name');
-  const noteEl = document.getElementById('rsvp-note');
-  const msgEl = document.getElementById('rsvp-msg');
-  const name = nameEl.value.trim();
-  
-  if(!name){
-    msgEl.textContent = 'Por favor, digite seu nome completo.';
-    msgEl.classList.add('show');
-    return;
-  }
-  if(!rsvpChoice){
-    msgEl.textContent = 'Por favor, escolha se você vai estar presente.';
-    msgEl.classList.add('show');
-    return;
-  }
-
-  const btn = document.getElementById('rsvp-submit');
-  btn.disabled = true;
-  btn.textContent = 'Confirmando...';
-
-  const ok = await insertPresenca({
-    name,
-    choice: rsvpChoice,
-    note: noteEl.value.trim()
-  });
-
-  btn.disabled = false;
-  btn.textContent = 'Enviar Confirmação';
-  msgEl.classList.add('show');
-
-  if(ok){
-    if(rsvpChoice === 'yes'){
-      msgEl.textContent = 'Confirmado com sucesso! Mal posso esperar pra te ver lá! 💌✨';
-      triggerCelebrationConfetti();
-    } else {
-      msgEl.textContent = 'Obrigada por avisar! Sentiremos sua falta nessa festa. 💗';
-    }
-    nameEl.value = '';
-    noteEl.value = '';
-    loadGuests();
-  } else {
-    msgEl.textContent = 'Ocorreu um erro ao enviar sua confirmação. Tente novamente.';
-  }
-});
-
 /* ============================================================
    9. MURAL DE RECADOS
    ============================================================ */
-async function loadMessages(){
-  const list = await fetchRecados();
-  const el = document.getElementById('message-list');
-  if(list.length === 0){
-    el.innerHTML = '<div class="empty-note">Seja a primeira pessoa a deixar um carinho para a Manu! 💌</div>';
-    return;
-  }
-  
-  const normalized = list.map(item => ({
-    name: item.nome || item.name || 'Convidado(a)',
-    text: item.mensagem || item.text || ''
-  }));
-
-  el.innerHTML = normalized.map(m => `
+function loadMessages(){
+  document.getElementById('message-list').innerHTML = RECADOS_SALVOS.map(m => `
     <div class="message-card reveal-on-scroll is-visible">
-      <div class="msg-name">${escapeHtml(m.name)}</div>
-      <div class="msg-text">"${escapeHtml(m.text)}"</div>
+      <div class="msg-name">${escapeHtml(m.nome)}</div>
+      <div class="msg-text">"${escapeHtml(m.mensagem)}"</div>
     </div>
   `).join('');
 }
-
-document.getElementById('msg-submit').addEventListener('click', async () => {
-  const nameEl = document.getElementById('msg-name');
-  const textEl = document.getElementById('msg-text');
-  const statusEl = document.getElementById('msg-status');
-  const name = nameEl.value.trim();
-  const text = textEl.value.trim();
-
-  if(!name || !text){
-    statusEl.textContent = 'Por favor, preencha seu nome e a mensagem.';
-    statusEl.classList.add('show');
-    return;
-  }
-
-  const btn = document.getElementById('msg-submit');
-  btn.disabled = true;
-  btn.textContent = 'Publicando...';
-
-  const ok = await insertRecado({ name, text });
-
-  btn.disabled = false;
-  btn.textContent = 'Publicar Mensagem';
-  statusEl.classList.add('show');
-
-  if(ok){
-    statusEl.textContent = 'Obrigada pelo carinho! Mensagem publicada com sucesso ✧';
-    triggerCelebrationConfetti();
-    nameEl.value = '';
-    textEl.value = '';
-    loadMessages();
-  } else {
-    statusEl.textContent = 'Ocorreu um erro ao enviar seu recado. Tente novamente.';
-  }
-});
 
 function escapeHtml(str){
   const div = document.createElement('div');
